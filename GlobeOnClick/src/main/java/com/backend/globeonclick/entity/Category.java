@@ -22,11 +22,16 @@ public class Category {
 
     private String title;
     private String description;
-    private String price;
+    private String image;
+    private Double price;
     private String currency;
     private String restrictions;
     private boolean state;
+    private Double discount;
 
     @OneToMany(mappedBy = "category")
     private List<MediaCategory> mediaCategories;
+
+    @OneToMany(mappedBy = "category")
+    private List<Reservation> reservations;
 }

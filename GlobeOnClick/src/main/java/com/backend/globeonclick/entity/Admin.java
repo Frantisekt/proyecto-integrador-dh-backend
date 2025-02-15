@@ -21,10 +21,11 @@ public class Admin implements UserDetails {
     private Long adminId;
 
     private String name;
+    private String username;
     private String email;
     private String password;
-    private String adminNickName;
-    private boolean adminState;
+    private String type;
+    private boolean state;
 
     @Enumerated(EnumType.STRING)
     private Role role;
@@ -56,6 +57,6 @@ public class Admin implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return adminState;
+        return state;
     }
 }
