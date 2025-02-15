@@ -30,6 +30,9 @@ public class User implements UserDetails {
     private String newsletter;
     private boolean state;
 
+    @OneToMany(mappedBy = "user")
+    private List<Reservation> reservations;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority("ROLE_USER"));
