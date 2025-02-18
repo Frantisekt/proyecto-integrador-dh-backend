@@ -2,11 +2,13 @@ package com.backend.globeonclick.authentication.request;
 
 import lombok.*;
 
-@Data
+
+@Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class AuthRequest {
+public class AuthenticationRequest {
     private String email;
     private String password;
 }
