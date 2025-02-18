@@ -1,10 +1,17 @@
+package com.backend.globeonclick.entity;
+
+import jakarta.persistence.*;
+import lombok.*;
+
+import java.util.List;
+
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "dates")
-public class Date {
+@Table(name = "tour_dates")
+public class TourDate {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long dateId;
@@ -16,6 +23,6 @@ public class Date {
     private boolean state;
     private Integer level;
 
-    @OneToMany(mappedBy = "date")
+    @OneToMany(mappedBy = "tourDate")
     private List<Reservation> reservations;
 } 
