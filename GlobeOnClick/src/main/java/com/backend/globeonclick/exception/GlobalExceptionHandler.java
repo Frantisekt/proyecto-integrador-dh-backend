@@ -1,3 +1,4 @@
+/*
 @ControllerAdvice
 public class GlobalExceptionHandler {
     
@@ -5,4 +6,4 @@ public class GlobalExceptionHandler {
     public ResponseEntity<?> handleResourceNotFoundException(ResourceNotFoundException ex) {
         // Implementación
     }
-}
+}*/
