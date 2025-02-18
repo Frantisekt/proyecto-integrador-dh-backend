@@ -1,33 +1,87 @@
 package com.backend.globeonclick.controller;
 
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
+import com.backend.globeonclick.dto.response.MediaResponseDTO;
+import com.backend.globeonclick.services.interfaces.IMediaService;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Collections;
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/media")
-@Tag(name = "Media Controller", description = "Endpoints para gestión de archivos multimedia")
+@CrossOrigin(origins = "*")
+@Validated
 public class MediaController {
-    
-    @Operation(summary = "Subir archivo multimedia")
+
+    private final IMediaService mediaService;
+
+    @Autowired
+    public MediaController(IMediaService mediaService) {
+        this.mediaService = mediaService;
+    }
+
     @PostMapping("/upload")
     public ResponseEntity<MediaResponseDTO> uploadMedia(
-            @RequestParam("file") MultipartFile file,
-            @RequestParam("categoryId") Long categoryId) {
-        // Implementación
+            @RequestParam("file") @NotNull MultipartFile file) {
+        if (file.isEmpty()) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        // Validar tipo de archivo si es necesario
+        String contentType = file.getContentType();
+        if (contentType == null || !contentType.startsWith("image/")) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        try {
+            MediaResponseDTO response = mediaService.uploadMedia(file);
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .build();
+        }
     }
-    
-    @Operation(summary = "Obtener multimedia por categoría")
-    @GetMapping("/category/{categoryId}")
-    public ResponseEntity<List<MediaCategoryResponseDTO>> getMediaByCategory(@PathVariable Long categoryId) {
-        // Implementación
+
+    @GetMapping
+    public ResponseEntity<List<MediaResponseDTO>> getAllMedia() {
+        try {
+            List<MediaResponseDTO> mediaList = mediaService.getAllMedia();
+            return ResponseEntity.ok(mediaList);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Collections.emptyList());
+        }
     }
-    
-    @Operation(summary = "Eliminar archivo multimedia")
+
+    @GetMapping("/{id}")
+    public ResponseEntity<MediaResponseDTO> getMediaById(
+            @PathVariable @Positive Long id) {
+        try {
+            return mediaService.getMediaById(id)
+                    .map(ResponseEntity::ok)
+                    .orElse(ResponseEntity.notFound().build());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteMedia(@PathVariable Long id) {
-        // Implementación
+    public ResponseEntity<Void> deleteMedia(@PathVariable @Positive Long id) {
+        try {
+            mediaService.deleteMedia(id);
+            return ResponseEntity.noContent().build();
+        } catch (RuntimeException e) {
+            if (e.getMessage().contains("not found")) {
+                return ResponseEntity.notFound().build();
+            }
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
-} 
+}
