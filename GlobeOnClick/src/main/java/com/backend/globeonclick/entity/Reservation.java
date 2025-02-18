@@ -1,3 +1,8 @@
+package com.backend.globeonclick.entity;
+
+import jakarta.persistence.*;
+import lombok.*;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -15,7 +20,7 @@ public class Reservation {
 
     @ManyToOne
     @JoinColumn(name = "package_id")
-    private Package package;
+    private TourPackage tourPackage;
 
     @ManyToOne
     @JoinColumn(name = "category_id")
@@ -23,9 +28,9 @@ public class Reservation {
 
     @ManyToOne
     @JoinColumn(name = "date_id")
-    private Date date;
+    private TourDate tourDate;
 
     private String confirmationStatus;
-    private String paymentStatus;
+    //private String paymentStatus;
     private String rating;
 } 
