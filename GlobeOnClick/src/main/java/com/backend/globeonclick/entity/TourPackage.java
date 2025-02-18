@@ -3,6 +3,7 @@ package com.backend.globeonclick.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -10,16 +11,17 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "packages")
-public class Package {
+@Table(name = "tour_packages")
+public class TourPackage {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long packageId;
 
     private String title;
     private String description;
-    private boolean state;
+    private boolean state = false;
 
-    @OneToMany(mappedBy = "packageId")
-    private List<Category> categories;
+    @Builder.Default
+    @ManyToMany(mappedBy = "tourPackages")
+    private List<Category> categories = new ArrayList<>();
 }
