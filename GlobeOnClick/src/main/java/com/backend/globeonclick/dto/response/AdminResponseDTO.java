@@ -11,7 +11,7 @@ public class AdminResponseDTO {
     private Long adminId;
     private String name;
     private String email;
-    private String adminNickName;
+    private String username;
     private Role role;
     private boolean adminState;
 }

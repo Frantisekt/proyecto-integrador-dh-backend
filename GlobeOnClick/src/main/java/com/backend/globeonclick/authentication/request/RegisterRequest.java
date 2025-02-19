@@ -1,20 +1,18 @@
-package com.backend.globeonclick.dto.response;
+package com.backend.globeonclick.authentication.request;
 
-import com.backend.globeonclick.entity.Role;
 import lombok.*;
 
 @Data
 @Builder
-@NoArgsConstructor
 @AllArgsConstructor
-public class UserResponseDTO {
-    private Long userId;
+@NoArgsConstructor
+public class RegisterRequest {
     private String name;
     private String paternalSurname;
     private String maternalSurname;
     private String username;
     private String email;
+    private String password;
     private String dni;
     private String newsletter;
-    private Role role;
 }

@@ -4,14 +4,13 @@ import com.backend.globeonclick.entity.Role;
 import lombok.*;
 
 @Data
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class AdminRequestDTO {
     private String name;
     private String email;
     private String password;
-    private String adminNickName;
+    private String username;
     private Role role;
     private boolean adminState;
 }

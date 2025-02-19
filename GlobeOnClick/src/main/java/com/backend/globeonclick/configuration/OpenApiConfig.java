@@ -1,3 +1,4 @@
+/*
 package com.backend.globeonclick.configuration;
 
 import io.swagger.v3.oas.models.OpenAPI;
@@ -16,4 +17,4 @@ public class OpenApiConfig {
                         .description("API para sistema de venta de paquetes turísticos")
                         .version("1.0"));
     }
-} 
+} */

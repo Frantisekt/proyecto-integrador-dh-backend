@@ -6,6 +6,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -17,14 +20,31 @@ public class MediaCategory {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long mediaCategoryId;
 
-    @ManyToOne
-    @JoinColumn(name = "category_id")
-    private Category category;
+    @ManyToMany
+    @JoinTable(
+            name = "category_media_category",
+            joinColumns = @JoinColumn(name = "media_category_id"),
+            inverseJoinColumns = @JoinColumn(name = "category_id")
+    )
+    private List<Category> categories = new ArrayList<>();
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "media_id")
     private Media media;
 
     private String mediaTitle;
     private String mediaDescription;
+
+    public void addCategory(Category category) {
+        if (categories == null) {
+            categories = new ArrayList<>();
+        }
+        categories.add(category);
+    }
+
+    public void removeCategory(Category category) {
+        if (categories != null) {
+            categories.remove(category);
+        }
+    }
 }

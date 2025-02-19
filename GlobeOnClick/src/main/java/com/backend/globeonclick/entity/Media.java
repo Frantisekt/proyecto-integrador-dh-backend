@@ -14,7 +14,7 @@ import java.util.List;
 public class Media {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long mediaeId;
+    private Long mediaId;
 
     private String url;
     private String cloudinaryId;

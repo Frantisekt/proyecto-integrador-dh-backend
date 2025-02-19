@@ -3,6 +3,7 @@ package com.backend.globeonclick.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -18,20 +19,40 @@ public class Category {
 
     @ManyToOne
     @JoinColumn(name = "package_id")
-    private Package packageId;
+    private TourPackage tourPackage;
 
     private String title;
     private String description;
-    private String image;
     private Double price;
     private String currency;
     private String restrictions;
     private boolean state;
     private Double discount;
 
-    @OneToMany(mappedBy = "category")
-    private List<MediaCategory> mediaCategories;
+    @ManyToMany
+    @JoinTable(
+            name = "package_category",
+            joinColumns = @JoinColumn(name = "category_id"),
+            inverseJoinColumns = @JoinColumn(name = "package_id")
+    )
+    private List<TourPackage> tourPackages = new ArrayList<>();
+
+    @ManyToMany(mappedBy = "categories")
+    private List<MediaCategory> mediaCategories = new ArrayList<>();
 
     @OneToMany(mappedBy = "category")
     private List<Reservation> reservations;
+
+    public void addMediaCategory(MediaCategory mediaCategory) {
+        if (mediaCategories == null) {
+            mediaCategories = new ArrayList<>();
+        }
+        mediaCategories.add(mediaCategory);
+        mediaCategory.addCategory(this);
+    }
+
+    public void removeMediaCategory(MediaCategory mediaCategory) {
+        mediaCategories.remove(mediaCategory);
+        mediaCategory.removeCategory(this);
+    }
 }
