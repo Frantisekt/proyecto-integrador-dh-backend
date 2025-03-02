@@ -12,5 +12,6 @@ public class AdminRequestDTO {
     private String password;
     private String username;
     private Role role;
-    private boolean adminState;
+    private boolean state;  // Cambiado de adminState a state
+    private String type;
 }

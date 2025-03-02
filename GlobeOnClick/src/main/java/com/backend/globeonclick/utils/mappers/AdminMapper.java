@@ -25,7 +25,7 @@ public class AdminMapper {
                 .email(admin.getEmail())
                 .username(admin.getUsername())
                 .role(admin.getRole())
-                .adminState(admin.isState())
+                .state(admin.isState())
                 .build();
     }
 
@@ -38,12 +38,12 @@ public class AdminMapper {
     public Admin toEntity(AdminRequestDTO requestDTO) {
         return Admin.builder()
                 .name(requestDTO.getName())
-                .email(requestDTO.getEmail())
                 .username(requestDTO.getUsername())
+                .email(requestDTO.getEmail())
                 .password(requestDTO.getPassword())
                 .role(requestDTO.getRole())
-                .state(requestDTO.isAdminState())
-                .type("ADMIN")
+                .state(requestDTO.isState())
+                .type(requestDTO.getType())
                 .build();
     }
 
@@ -55,6 +55,6 @@ public class AdminMapper {
             admin.setPassword(requestDTO.getPassword());
         }
         admin.setRole(requestDTO.getRole());
-        admin.setState(requestDTO.isAdminState());
+        admin.setState(requestDTO.isState());
     }
 }
