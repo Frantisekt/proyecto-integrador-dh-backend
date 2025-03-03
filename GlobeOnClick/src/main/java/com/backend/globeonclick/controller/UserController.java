@@ -47,6 +47,12 @@ public class UserController {
         userService.deleteUser(id);
         return ResponseEntity.noContent().build();
     }
+    
+    @Operation(summary = "Buscar usuario por DNI")
+    @GetMapping("/dni/{dni}")
+    public ResponseEntity<UserResponseDTO> getUserByDni(@PathVariable String dni) {
+        return ResponseEntity.ok(userService.getUserByDni(dni));
+    }
 
     // Otros endpoints...
 }

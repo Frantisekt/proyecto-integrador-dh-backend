@@ -98,4 +98,12 @@ public class UserServiceImpl implements IUserService {
     public boolean existsByDni(String dni) {
         return userRepository.existsByDni(dni);
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public UserResponseDTO getUserByDni(String dni) {
+        User user = userRepository.findByDni(dni)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado con DNI: " + dni));
+        return userMapper.toResponseDTO(user);
+    }
 }

@@ -13,4 +13,5 @@ public interface IUserService {
     void deleteUser(Long id);
     boolean existsByEmail(String email);
     boolean existsByDni(String dni);
+    UserResponseDTO getUserByDni(String dni); 
 }
