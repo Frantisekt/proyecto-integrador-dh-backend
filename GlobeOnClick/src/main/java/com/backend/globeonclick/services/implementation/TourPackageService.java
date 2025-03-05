@@ -2,17 +2,18 @@ package com.backend.globeonclick.services.implementation;
 
 import com.backend.globeonclick.dto.request.TourPackageRequestDTO;
 import com.backend.globeonclick.dto.response.TourPackageResponseDTO;
-import com.backend.globeonclick.entity.Category;
-import com.backend.globeonclick.entity.MediaCategory;
+
 import com.backend.globeonclick.entity.MediaPackage;
 import com.backend.globeonclick.entity.TourPackage;
 import com.backend.globeonclick.repository.IMediaPackageRepository;
 import com.backend.globeonclick.repository.ITourPackageRepository;
 import com.backend.globeonclick.services.interfaces.ITourPackageService;
 import com.backend.globeonclick.utils.mappers.TourPackageMapper;
+
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -84,8 +85,8 @@ public class TourPackageService implements ITourPackageService {
         try {
             // Primero, eliminar las referencias en package_category
             Query query = entityManager.createNativeQuery(
-                    "DELETE FROM package_category WHERE package_id = :packageId");
-            query.setParameter("packageId", id);
+                    "DELETE FROM package_category WHERE package_id = ?");
+            query.setParameter(1, id);
             query.executeUpdate();
 
             // Luego eliminar el paquete
@@ -122,3 +123,4 @@ public class TourPackageService implements ITourPackageService {
         tourPackageRepository.save(tourPackage);
     }
 }
+

@@ -31,7 +31,7 @@ public class TourPackage {
     @OneToMany(mappedBy = "tourPackage")
     private List<Reservation> reservations;
 
-    @ManyToMany
+    @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(
             name = "package_feature",
             joinColumns = @JoinColumn(name = "package_id"),

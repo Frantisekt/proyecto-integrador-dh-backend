@@ -40,14 +40,6 @@ public class Category {
     @ManyToMany(mappedBy = "categories")
     private List<MediaCategory> mediaCategories = new ArrayList<>();
 
-    @ManyToMany
-    @JoinTable(
-            name = "category_feature",
-            joinColumns = @JoinColumn(name = "category_id"),
-            inverseJoinColumns = @JoinColumn(name = "feature_id")
-    )
-    private List<Feature> features = new ArrayList<>();
-
     @OneToMany(mappedBy = "category")
     private List<Reservation> reservations;
 
@@ -62,20 +54,5 @@ public class Category {
     public void removeMediaCategory(MediaCategory mediaCategory) {
         mediaCategories.remove(mediaCategory);
         mediaCategory.removeCategory(this);
-    }
-
-    public void addFeature(Feature feature) {
-        if (features == null) {
-            features = new ArrayList<>();
-        }
-        features.add(feature);
-        if (!feature.getCategories().contains(this)) {
-            feature.getCategories().add(this);
-        }
-    }
-
-    public void removeFeature(Feature feature) {
-        features.remove(feature);
-        feature.getCategories().remove(this);
     }
 }
