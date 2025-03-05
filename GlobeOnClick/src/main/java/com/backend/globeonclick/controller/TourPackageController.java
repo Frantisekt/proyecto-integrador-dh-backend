@@ -1,6 +1,7 @@
 package com.backend.globeonclick.controller;
 
 import com.backend.globeonclick.dto.request.TourPackageRequestDTO;
+import com.backend.globeonclick.dto.response.CategoryResponseDTO;
 import com.backend.globeonclick.dto.response.TourPackageResponseDTO;
 import com.backend.globeonclick.services.interfaces.ITourPackageService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -61,6 +62,23 @@ public class TourPackageController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletePackage(@PathVariable Long id) {
         tourPackageService.deleteTourPackage(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "Asignar media existente a paquete")
+    @PostMapping("/{packageId}/media/{mediaPackageId}")
+    public ResponseEntity<TourPackageResponseDTO> addMediaToPackage(
+            @PathVariable Long packageId,
+            @PathVariable Long mediaPackageId) {
+        return ResponseEntity.ok(tourPackageService.addMediaToTourPackage(packageId, mediaPackageId));
+    }
+
+    @Operation(summary = "Remover media de paquete")
+    @DeleteMapping("/{packageId}/media/{mediaPackageId}")
+    public ResponseEntity<Void> removeMediaFromPackage(
+            @PathVariable Long packageId,
+            @PathVariable Long mediaPackageId) {
+        tourPackageService.removeMediaFromTourPackage(packageId, mediaPackageId);
         return ResponseEntity.noContent().build();
     }
 }

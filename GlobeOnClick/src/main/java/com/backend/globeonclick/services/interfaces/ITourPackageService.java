@@ -1,6 +1,7 @@
 package com.backend.globeonclick.services.interfaces;
 
 import com.backend.globeonclick.dto.request.TourPackageRequestDTO;
+import com.backend.globeonclick.dto.response.CategoryResponseDTO;
 import com.backend.globeonclick.dto.response.TourPackageResponseDTO;
 import com.backend.globeonclick.entity.TourPackage;
 
@@ -17,4 +18,8 @@ public interface ITourPackageService {
     TourPackageResponseDTO updateTourPackage(Long id, TourPackageRequestDTO requestDTO);
 
     void deleteTourPackage(Long id);
+
+    TourPackageResponseDTO addMediaToTourPackage(Long packageId, Long mediaPackageId);
+
+    void removeMediaFromTourPackage(Long packageId, Long mediaPackageId);
 }

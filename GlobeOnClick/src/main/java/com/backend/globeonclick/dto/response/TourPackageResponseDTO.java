@@ -13,6 +13,7 @@ public class TourPackageResponseDTO {
     private String description;
     private boolean state;
     private List<CategoryBasicInfo> categories;
+    private List<MediaPackageResponseDTO> mediaPackages;
 
     @Data
     @Builder

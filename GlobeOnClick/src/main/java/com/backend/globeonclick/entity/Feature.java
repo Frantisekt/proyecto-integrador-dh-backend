@@ -17,12 +17,26 @@ public class Feature {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long featureId;
 
-    private String name;
-    private String description;
-    private String iconUrl;
-    private String iconCloudinaryId;
-    private boolean state = true;
+    @Enumerated(EnumType.STRING)
+    @Column(unique = true)
+    //@Column(unique = true, columnDefinition = "VARCHAR(255)")
+    private FeatureName name;
 
     @ManyToMany(mappedBy = "features")
-    private List<Category> categories = new ArrayList<>();
+    private List<TourPackage> packages = new ArrayList<>();
+
+    public void addPackage(TourPackage tourPackage) {
+        if (packages == null) {
+            packages = new ArrayList<>();
+        }
+        packages.add(tourPackage);
+        if (!tourPackage.getFeatures().contains(this)) {
+            tourPackage.getFeatures().add(this);
+        }
+    }
+
+    public void removePackage(TourPackage tourPackage) {
+        packages.remove(tourPackage);
+        tourPackage.getFeatures().remove(this);
+    }
 }

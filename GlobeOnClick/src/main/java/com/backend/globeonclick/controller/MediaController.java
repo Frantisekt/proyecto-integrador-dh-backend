@@ -72,6 +72,25 @@ public class MediaController {
         }
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<MediaResponseDTO> updateMedia(
+            @PathVariable @Positive Long id,
+            @RequestParam("file") @NotNull MultipartFile file) {
+        if (file.isEmpty()) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        try {
+            MediaResponseDTO response = mediaService.updateMedia(id, file);
+            return ResponseEntity.ok(response);
+        } catch (RuntimeException e) {
+            if (e.getMessage().contains("not found")) {
+                return ResponseEntity.notFound().build();
+            }
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteMedia(@PathVariable @Positive Long id) {
         try {

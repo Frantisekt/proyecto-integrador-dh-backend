@@ -35,17 +35,7 @@ public class CategoryService implements ICategoryService {
 
     @Override
     public CategoryResponseDTO createCategory(CategoryRequestDTO requestDTO) {
-        Category category = Category.builder()
-                .title(requestDTO.getTitle())
-                .description(requestDTO.getDescription())
-                .price(requestDTO.getPrice())
-                .currency(requestDTO.getCurrency())
-                .restrictions(requestDTO.getRestrictions())
-                .state(requestDTO.isState())
-                .discount(requestDTO.getDiscount())
-                .tourPackages(new ArrayList<>())
-                .mediaCategories(new ArrayList<>())
-                .build();
+        Category category = categoryMapper.toEntity(requestDTO);
 
         category = categoryRepository.save(category);
 

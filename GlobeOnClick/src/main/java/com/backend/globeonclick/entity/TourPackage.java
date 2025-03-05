@@ -31,6 +31,14 @@ public class TourPackage {
     @OneToMany(mappedBy = "tourPackage")
     private List<Reservation> reservations;
 
+    @ManyToMany
+    @JoinTable(
+            name = "package_feature",
+            joinColumns = @JoinColumn(name = "package_id"),
+            inverseJoinColumns = @JoinColumn(name = "feature_id")
+    )
+    private List<Feature> features = new ArrayList<>();
+
     public void addMediaPackage(MediaPackage mediaPackage) {
         if (mediaPackages == null) {
             mediaPackages = new ArrayList<>();
@@ -42,5 +50,20 @@ public class TourPackage {
     public void removeMediaPackage(MediaPackage mediaPackage) {
         mediaPackages.remove(mediaPackage);
         mediaPackage.removeTourPackage(this);
+    }
+
+    public void addFeature(Feature feature) {
+        if (features == null) {
+            features = new ArrayList<>();
+        }
+        features.add(feature);
+        if (!feature.getPackages().contains(this)) {
+            feature.getPackages().add(this);
+        }
+    }
+
+    public void removeFeature(Feature feature) {
+        features.remove(feature);
+        feature.getPackages().remove(this);
     }
 }

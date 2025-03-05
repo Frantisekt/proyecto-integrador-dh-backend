@@ -20,7 +20,7 @@ public class MediaCategory {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long mediaCategoryId;
 
-    @ManyToMany
+    @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(
             name = "category_media_category",
             joinColumns = @JoinColumn(name = "media_category_id"),

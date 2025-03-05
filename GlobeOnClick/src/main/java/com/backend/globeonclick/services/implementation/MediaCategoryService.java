@@ -28,7 +28,6 @@ import java.util.stream.Collectors;
 public class MediaCategoryService implements IMediaCategoryService {
 
     private final IMediaCategoryRepository mediaCategoryRepository;
-    private final ICategoryRepository categoryRepository;
     private final IMediaRepository mediaRepository;
     private final MediaCategoryMapper mediaCategoryMapper;
     private final IMediaService mediaService;
@@ -39,13 +38,9 @@ public class MediaCategoryService implements IMediaCategoryService {
         MediaResponseDTO mediaResponse = mediaService.uploadMedia(requestDTO.getFile());
         Media media = mediaMapper.toEntity(mediaResponse);
 
-        MediaCategory mediaCategory = MediaCategory.builder()
-                .media(media)
-                .mediaTitle(requestDTO.getMediaTitle())
-                .mediaDescription(requestDTO.getMediaDescription())
-                .build();
-
+        MediaCategory mediaCategory = mediaCategoryMapper.toEntity(requestDTO, media);
         MediaCategory savedMediaCategory = mediaCategoryRepository.save(mediaCategory);
+
         return mediaCategoryMapper.toResponseDTO(savedMediaCategory);
     }
 
@@ -82,12 +77,19 @@ public class MediaCategoryService implements IMediaCategoryService {
         return mediaCategoryMapper.toResponseDTO(updatedMediaCategory);
     }
 
-
     @Override
     public void deleteMediaCategory(Long id) {
         if (!mediaCategoryRepository.existsById(id)) {
             throw new RuntimeException("MediaCategory not found with id: " + id);
         }
+
+        Optional<MediaCategory> mediaCategory = mediaCategoryRepository.findById(id);
+
+        Media media = mediaCategory.get().getMedia();
+
+        Long mediaId = media.getMediaId();
+
         mediaCategoryRepository.deleteById(id);
+        mediaRepository.deleteById(mediaId);
     }
 }

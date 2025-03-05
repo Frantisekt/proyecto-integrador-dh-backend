@@ -71,6 +71,12 @@ public class MediaService implements IMediaService {
     }
 
     @Override
+    public MediaResponseDTO updateMedia(Long id, MultipartFile newFile) {
+        deleteMedia(id);
+        return uploadMedia(newFile);
+    }
+
+    @Override
     public void deleteMedia(Long id) {
         Media media = mediaRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Media not found with id: " + id));
