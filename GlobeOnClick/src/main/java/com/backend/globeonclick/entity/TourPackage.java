@@ -31,6 +31,8 @@ public class TourPackage {
     @OneToMany(mappedBy = "tourPackage")
     private List<Reservation> reservations;
 
+    
+
     public void addMediaPackage(MediaPackage mediaPackage) {
         if (mediaPackages == null) {
             mediaPackages = new ArrayList<>();

@@ -6,6 +6,8 @@ import com.backend.globeonclick.entity.TourPackage;
 import com.backend.globeonclick.repository.ITourPackageRepository;
 import com.backend.globeonclick.services.interfaces.ITourPackageService;
 import com.backend.globeonclick.utils.mappers.TourPackageMapper;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.Query;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,6 +23,9 @@ public class TourPackageService implements ITourPackageService {
 
     private final ITourPackageRepository tourPackageRepository;
     private final TourPackageMapper tourPackageMapper;
+
+    @Autowired
+    private EntityManager entityManager;
 
     @Override
     public TourPackageResponseDTO createTourPackage(TourPackageRequestDTO requestDTO) {
@@ -53,7 +58,19 @@ public class TourPackageService implements ITourPackageService {
     }
 
     @Override
+    @Transactional
     public void deleteTourPackage(Long id) {
-        tourPackageRepository.deleteById(id);
+        try {
+            // Primero, eliminar las referencias en package_category
+            Query query = entityManager.createNativeQuery(
+                    "DELETE FROM package_category WHERE package_id = :packageId");
+            query.setParameter("packageId", id);
+            query.executeUpdate();
+
+            // Luego eliminar el paquete
+            tourPackageRepository.deleteById(id);
+        } catch (Exception e) {
+            throw new RuntimeException("Error al eliminar el paquete turístico: " + e.getMessage());
+        }
     }
 }

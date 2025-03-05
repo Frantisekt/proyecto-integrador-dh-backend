@@ -29,7 +29,7 @@ public class Category {
     private boolean state;
     private Double discount;
 
-    @ManyToMany
+    @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(
             name = "package_category",
             joinColumns = @JoinColumn(name = "category_id"),
@@ -40,7 +40,7 @@ public class Category {
     @ManyToMany(mappedBy = "categories")
     private List<MediaCategory> mediaCategories = new ArrayList<>();
 
-    @ManyToMany
+    @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(
             name = "category_feature",
             joinColumns = @JoinColumn(name = "category_id"),
