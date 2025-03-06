@@ -64,5 +64,8 @@ public class UserMapper {
         }
         user.setDni(requestDTO.getDni());
         user.setNewsletter(requestDTO.getNewsletter());
+        user.setRole(requestDTO.getRole());
     }
+
+
 }
