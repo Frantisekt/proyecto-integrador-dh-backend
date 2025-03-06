@@ -1,3 +1,4 @@
+/*
 package com.backend.globeonclick.utils.featureInitializer;
 
 import com.backend.globeonclick.entity.Feature;
@@ -26,4 +27,4 @@ public class FeatureInitializer implements CommandLineRunner {
             }
         });
     }
-}
+}*/

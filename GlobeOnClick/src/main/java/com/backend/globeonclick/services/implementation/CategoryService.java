@@ -89,11 +89,18 @@ public class CategoryService implements ICategoryService {
 
     @Override
     public void deleteCategory(Long id) {
-        if (!categoryRepository.existsById(id)) {
-            throw new RuntimeException("Category not found with id: " + id);
-        }
-        categoryRepository.deleteById(id);
+        Category category = categoryRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Category not found with id: " + id));
+
+        category.getTourPackages().clear();
+        categoryRepository.save(category);
+
+        category.getMediaCategories().clear();
+        categoryRepository.save(category);
+
+        categoryRepository.delete(category);
     }
+
 
     @Override
     public List<CategoryResponseDTO> getCategoriesByTourPackageId(Long tourPackageId) {

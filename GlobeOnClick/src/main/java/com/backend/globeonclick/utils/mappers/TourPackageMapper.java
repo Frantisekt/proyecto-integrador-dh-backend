@@ -3,8 +3,11 @@ package com.backend.globeonclick.utils.mappers;
 import com.backend.globeonclick.dto.request.TourPackageRequestDTO;
 import com.backend.globeonclick.dto.response.MediaPackageResponseDTO;
 import com.backend.globeonclick.dto.response.TourPackageResponseDTO;
+import com.backend.globeonclick.entity.Feature;
+import com.backend.globeonclick.entity.FeatureName;
 import com.backend.globeonclick.entity.MediaPackage;
 import com.backend.globeonclick.entity.TourPackage;
+import com.backend.globeonclick.repository.FeatureRepository;
 import com.backend.globeonclick.repository.IMediaPackageRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -18,6 +21,7 @@ public class TourPackageMapper {
 
     private final MediaPackageMapper mediaPackageMapper;
     private final IMediaPackageRepository mediaPackageRepository;
+    private final FeatureRepository featureRepository;
 
     public TourPackageResponseDTO toResponseDTO(TourPackage tourPackage) {
         if (tourPackage == null) return null;
@@ -38,6 +42,10 @@ public class TourPackageMapper {
                         .build())
                 .collect(Collectors.toList());
 
+        List<FeatureName> featureNames = tourPackage.getFeatures().stream()
+                .map(Feature::getName)
+                .collect(Collectors.toList());
+
         return TourPackageResponseDTO.builder()
                 .packageId(tourPackage.getPackageId())
                 .title(tourPackage.getTitle())
@@ -45,6 +53,7 @@ public class TourPackageMapper {
                 .state(tourPackage.isState())
                 .categories(categoryInfos)
                 .mediaPackages(new ArrayList<>(uniqueMediaPackages))
+                .features(featureNames)
                 .build();
     }
 
@@ -55,12 +64,20 @@ public class TourPackageMapper {
     }
 
     public TourPackage toEntity(TourPackageRequestDTO requestDTO) {
-        return TourPackage.builder()
+        TourPackage tourPackage = TourPackage.builder()
                 .title(requestDTO.getTitle())
                 .description(requestDTO.getDescription())
                 .state(requestDTO.isState())
                 .mediaPackages(new ArrayList<>())
+                .features(new ArrayList<>())
                 .build();
+
+        if (requestDTO.getFeatureIds() != null && !requestDTO.getFeatureIds().isEmpty()) {
+            List<Feature> features = featureRepository.findAllById(requestDTO.getFeatureIds());
+            features.forEach(tourPackage::addFeature);
+        }
+
+        return tourPackage;
     }
 
     public void updateEntity(TourPackage tourPackage, TourPackageRequestDTO requestDTO) {
@@ -71,6 +88,12 @@ public class TourPackageMapper {
         if (requestDTO.getMediaPackageIds() != null && !requestDTO.getMediaPackageIds().isEmpty()) {
             List<MediaPackage> mediaPackages = mediaPackageRepository.findAllById(requestDTO.getMediaPackageIds());
             mediaPackages.forEach(tourPackage::addMediaPackage);
+        }
+
+        tourPackage.getFeatures().clear();
+        if (requestDTO.getFeatureIds() != null && !requestDTO.getFeatureIds().isEmpty()) {
+            List<Feature> features = featureRepository.findAllById(requestDTO.getFeatureIds());
+            features.forEach(tourPackage::addFeature);
         }
     }
 }

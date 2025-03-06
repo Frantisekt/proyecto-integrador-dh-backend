@@ -18,7 +18,7 @@ public class Feature {
     private Long featureId;
 
     @Enumerated(EnumType.STRING)
-    @Column(unique = true)
+    @Column(unique = true, length = 255)
     //@Column(unique = true, columnDefinition = "VARCHAR(255)")
     private FeatureName name;
 

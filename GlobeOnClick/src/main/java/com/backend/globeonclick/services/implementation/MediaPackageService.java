@@ -62,6 +62,7 @@ public class MediaPackageService implements IMediaPackageService {
                 .orElseThrow(() -> new RuntimeException("MediaPackage not found with id: " + id));
 
         if (requestDTO.getFile() != null) {
+            //Aqui debo quitar el update
             MediaResponseDTO mediaResponse = mediaService.updateMedia(mediaPackage.getMedia().getMediaId(), requestDTO.getFile());
             Media newMedia = mediaMapper.toEntity(mediaResponse);
 

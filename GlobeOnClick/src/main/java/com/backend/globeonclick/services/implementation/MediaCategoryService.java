@@ -83,13 +83,13 @@ public class MediaCategoryService implements IMediaCategoryService {
             throw new RuntimeException("MediaCategory not found with id: " + id);
         }
 
-        Optional<MediaCategory> mediaCategory = mediaCategoryRepository.findById(id);
+        /*Optional<MediaCategory> mediaCategory = mediaCategoryRepository.findById(id);
 
         Media media = mediaCategory.get().getMedia();
 
-        Long mediaId = media.getMediaId();
+        Long mediaId = media.getMediaId();*/
 
         mediaCategoryRepository.deleteById(id);
-        mediaRepository.deleteById(mediaId);
+        //mediaRepository.deleteById(mediaId);
     }
 }

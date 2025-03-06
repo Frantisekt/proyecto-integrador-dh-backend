@@ -1,5 +1,6 @@
 package com.backend.globeonclick.dto.response;
 
+import com.backend.globeonclick.entity.FeatureName;
 import lombok.*;
 import java.util.List;
 
@@ -14,6 +15,7 @@ public class TourPackageResponseDTO {
     private boolean state;
     private List<CategoryBasicInfo> categories;
     private List<MediaPackageResponseDTO> mediaPackages;
+    private List<FeatureName> features;
 
     @Data
     @Builder

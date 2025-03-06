@@ -120,6 +120,9 @@ public class TourPackageService implements ITourPackageService {
                 .orElseThrow(() -> new RuntimeException("MediaPackage not found with id: " + mediaPackageId));
 
         tourPackage.removeMediaPackage(mediaPackage);
+        mediaPackage.removeTourPackage(tourPackage);
+
+        mediaPackageRepository.save(mediaPackage);
         tourPackageRepository.save(tourPackage);
     }
 }

@@ -16,7 +16,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/media")
-@CrossOrigin(origins = "*")
 @Validated
 public class MediaController {
 
@@ -31,12 +30,6 @@ public class MediaController {
     public ResponseEntity<MediaResponseDTO> uploadMedia(
             @RequestParam("file") @NotNull MultipartFile file) {
         if (file.isEmpty()) {
-            return ResponseEntity.badRequest().build();
-        }
-
-        // Validar tipo de archivo si es necesario
-        String contentType = file.getContentType();
-        if (contentType == null || !contentType.startsWith("image/")) {
             return ResponseEntity.badRequest().build();
         }
 
