@@ -28,20 +28,35 @@ public class JwtService {
     }
 
     public String generateToken(UserDetails userDetails) {
+        String userType = getUserType(userDetails);
+
         Map<String, Object> claims = new HashMap<>();
         claims.put("roles", userDetails.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.toList()));
-        
+        claims.put("type", userType);
+
+        // Agregar información específica según el tipo de usuario
+        if (userDetails instanceof com.backend.globeonclick.entity.Admin) {
+            com.backend.globeonclick.entity.Admin admin = (com.backend.globeonclick.entity.Admin) userDetails;
+            claims.put("userId", admin.getAdminId());
+            claims.put("role", admin.getRole().name()); // Incluye el rol específico (ADMIN o AGENT)
+        } else if (userDetails instanceof com.backend.globeonclick.entity.User) {
+            com.backend.globeonclick.entity.User user = (com.backend.globeonclick.entity.User) userDetails;
+            claims.put("userId", user.getUserId());
+            claims.put("role", user.getRole().name()); // Siempre será USER
+        }
+
         return generateToken(claims, userDetails);
     }
 
-    public String generateAdminToken(UserDetails userDetails) {
-        Map<String, Object> claims = new HashMap<>();
-        claims.put("roles", Collections.singletonList("ROLE_ADMIN"));
-        claims.put("type", "ADMIN");
-        
-        return generateToken(claims, userDetails);
+    private String getUserType(UserDetails userDetails) {
+        if (userDetails instanceof com.backend.globeonclick.entity.Admin) {
+            return "ADMIN"; // El tipo sigue siendo ADMIN independientemente del rol
+        } else if (userDetails instanceof com.backend.globeonclick.entity.User) {
+            return "USER";
+        }
+        return "UNKNOWN";
     }
 
     public String generateToken(
@@ -71,8 +86,6 @@ public class JwtService {
         return extractClaim(token, Claims::getExpiration);
     }
 
-
-
     public<T> T extractClaim(String token, Function<Claims, T> claimsFunction) {
         final Claims claims  = extractAllClaims(token);
         return claimsFunction.apply(claims);
@@ -91,5 +104,4 @@ public class JwtService {
         byte[] keyBytes = Decoders.BASE64.decode(jwtProperties.getSecretKey());
         return Keys.hmacShaKeyFor(keyBytes);
     }
-
 }

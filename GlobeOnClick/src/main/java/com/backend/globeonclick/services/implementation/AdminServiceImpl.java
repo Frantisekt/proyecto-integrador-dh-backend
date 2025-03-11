@@ -3,6 +3,7 @@ package com.backend.globeonclick.services.implementation;
 import com.backend.globeonclick.dto.request.AdminRequestDTO;
 import com.backend.globeonclick.dto.response.AdminResponseDTO;
 import com.backend.globeonclick.entity.Admin;
+import com.backend.globeonclick.entity.Role;
 import com.backend.globeonclick.exception.ResourceConflictException;
 import com.backend.globeonclick.exception.ResourceNotFoundException;
 import com.backend.globeonclick.repository.IAdminRepository;
@@ -23,9 +24,13 @@ public class AdminServiceImpl implements IAdminService {
 
     @Override
     public AdminResponseDTO createAdmin(AdminRequestDTO adminDTO) {
+        // Validar email único
         if (adminRepository.findByEmail(adminDTO.getEmail()).isPresent()) {
             throw new ResourceConflictException("Email ya registrado");
         }
+
+        // Validar que el rol sea ADMIN o AGENT
+        validateAdminRole(adminDTO.getRole());
 
         Admin admin = Admin.builder()
                 .name(adminDTO.getName())
@@ -34,12 +39,13 @@ public class AdminServiceImpl implements IAdminService {
                 .password(passwordEncoder.encode(adminDTO.getPassword()))
                 .role(adminDTO.getRole())
                 .state(adminDTO.isState())
-                .type(adminDTO.getType())
+                .type("ADMIN") // El tipo siempre es "ADMIN" para la entidad Admin
                 .build();
 
         Admin savedAdmin = adminRepository.save(admin);
         return mapToDTO(savedAdmin);
     }
+
 
     @Override
     public AdminResponseDTO getAdminById(Long id) {
@@ -60,11 +66,14 @@ public class AdminServiceImpl implements IAdminService {
         Admin admin = adminRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Administrador no encontrado"));
 
+        // Validar que el rol sea ADMIN o AGENT
+        validateAdminRole(adminDTO.getRole());
+
         admin.setName(adminDTO.getName());
         admin.setUsername(adminDTO.getUsername());
         admin.setRole(adminDTO.getRole());
         admin.setState(adminDTO.isState());
-        admin.setType(adminDTO.getType());
+        // No actualizamos el tipo, ya que siempre debe ser "ADMIN"
 
         if (adminDTO.getPassword() != null && !adminDTO.getPassword().isEmpty()) {
             admin.setPassword(passwordEncoder.encode(adminDTO.getPassword()));
@@ -95,6 +104,13 @@ public class AdminServiceImpl implements IAdminService {
                 .email(admin.getEmail())
                 .role(admin.getRole())
                 .state(admin.isState())
+                .type("ADMIN") // Aseguramos que el tipo siempre sea "ADMIN" en la respuesta
                 .build();
+    }
+
+    private void validateAdminRole(Role role) {
+        if (role != Role.ADMIN && role != Role.AGENT) {
+            throw new IllegalArgumentException("El rol de un administrador debe ser ADMIN o AGENT");
+        }
     }
 }

@@ -14,8 +14,8 @@ public class AuthenticationResponse {
     private String token;
     private String name;
     private String email;
-    private Long adminId;
+    private Long userId; // Campo unificado para userId/adminId
     private String type; // "USER" o "ADMIN"
-    private Role role; // null para USER, ADMIN o AGENT para admins
+    private Role role;
     private String error;
 }

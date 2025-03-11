@@ -43,7 +43,6 @@ public class AdminMapper {
                 .password(requestDTO.getPassword())
                 .role(requestDTO.getRole())
                 .state(requestDTO.isState())
-                .type(requestDTO.getType())
                 .build();
     }
 

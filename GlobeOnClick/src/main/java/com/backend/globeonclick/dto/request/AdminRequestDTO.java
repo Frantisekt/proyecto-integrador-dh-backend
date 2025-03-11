@@ -11,7 +11,6 @@ public class AdminRequestDTO {
     private String email;
     private String password;
     private String username;
-    private Role role;
-    private boolean state;  // Cambiado de adminState a state
-    private String type;
+    private Role role;      // Solo debe aceptar ADMIN o AGENT
+    private boolean state;
 }

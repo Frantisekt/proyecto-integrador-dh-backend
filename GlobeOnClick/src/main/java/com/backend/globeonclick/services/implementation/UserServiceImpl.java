@@ -2,6 +2,7 @@ package com.backend.globeonclick.services.implementation;
 
 import com.backend.globeonclick.dto.request.UserRequestDTO;
 import com.backend.globeonclick.dto.response.UserResponseDTO;
+import com.backend.globeonclick.entity.Role;
 import com.backend.globeonclick.entity.User;
 import com.backend.globeonclick.exception.ResourceNotFoundException;
 import com.backend.globeonclick.repository.IUserRepository;
@@ -33,6 +34,8 @@ public class UserServiceImpl implements IUserService {
         }
 
         User user = userMapper.toEntity(userDTO);
+        // Asegurarse de que el rol siempre sea USER
+        user.setRole(Role.USER);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         user = userRepository.save(user);
         return userMapper.toResponseDTO(user);
@@ -71,7 +74,8 @@ public class UserServiceImpl implements IUserService {
 
         userMapper.updateEntity(user, userDTO);
 
-        // Si se proporciona una nueva contraseña, encriptarla
+        user.setRole(Role.USER);
+
         if (userDTO.getPassword() != null && !userDTO.getPassword().isEmpty()) {
             user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
         }
