@@ -3,10 +3,7 @@ package com.backend.globeonclick.utils.mappers;
 import com.backend.globeonclick.dto.request.TourPackageRequestDTO;
 import com.backend.globeonclick.dto.response.MediaPackageResponseDTO;
 import com.backend.globeonclick.dto.response.TourPackageResponseDTO;
-import com.backend.globeonclick.entity.Feature;
-import com.backend.globeonclick.entity.FeatureName;
-import com.backend.globeonclick.entity.MediaPackage;
-import com.backend.globeonclick.entity.TourPackage;
+import com.backend.globeonclick.entity.*;
 import com.backend.globeonclick.repository.FeatureRepository;
 import com.backend.globeonclick.repository.IMediaPackageRepository;
 import lombok.RequiredArgsConstructor;
@@ -26,25 +23,37 @@ public class TourPackageMapper {
     public TourPackageResponseDTO toResponseDTO(TourPackage tourPackage) {
         if (tourPackage == null) return null;
 
-        Set<MediaPackageResponseDTO> uniqueMediaPackages = tourPackage.getMediaPackages().stream()
-                .map(mediaPackageMapper::toResponseDTO)
-                .sorted(Comparator.comparing(MediaPackageResponseDTO::getMediaPackageId))
-                .collect(Collectors.toCollection(LinkedHashSet::new));
+        // 1. Inicializar colecciones con tamaño adecuado
+        int mediaPackageLimit = Math.min(tourPackage.getMediaPackages().size(), 20);
+        List<MediaPackageResponseDTO> mediaPackageDTOs = new ArrayList<>(mediaPackageLimit);
 
-        List<TourPackageResponseDTO.CategoryBasicInfo> categoryInfos = tourPackage.getCategories().stream()
-                .map(category -> TourPackageResponseDTO.CategoryBasicInfo.builder()
-                        .categoryId(category.getCategoryId())
-                        .title(category.getTitle())
-                        .description(category.getDescription())
-                        .price(category.getPrice())
-                        .currency(category.getCurrency())
-                        .state(category.isState())
-                        .build())
-                .collect(Collectors.toList());
+        // 2. Limitar cantidad de mediaPackages procesados
+        for (int i = 0; i < mediaPackageLimit; i++) {
+            MediaPackage mp = tourPackage.getMediaPackages().get(i);
+            mediaPackageDTOs.add(mediaPackageMapper.toResponseDTO(mp));
+        }
 
-        List<FeatureName> featureNames = tourPackage.getFeatures().stream()
-                .map(Feature::getName)
-                .collect(Collectors.toList());
+        // 3. Usar tamaño adecuado para las categorías
+        List<TourPackageResponseDTO.CategoryBasicInfo> categoryInfos =
+                new ArrayList<>(tourPackage.getCategories().size());
+
+        // 4. Procesar categorías directamente sin stream
+        for (Category category : tourPackage.getCategories()) {
+            categoryInfos.add(TourPackageResponseDTO.CategoryBasicInfo.builder()
+                    .categoryId(category.getCategoryId())
+                    .title(category.getTitle())
+                    .description(category.getDescription())
+                    .price(category.getPrice())
+                    .currency(category.getCurrency())
+                    .state(category.isState())
+                    .build());
+        }
+
+        // 5. Extraer solo los nombres de features sin stream
+        List<FeatureName> featureNames = new ArrayList<>(tourPackage.getFeatures().size());
+        for (Feature feature : tourPackage.getFeatures()) {
+            featureNames.add(feature.getName());
+        }
 
         return TourPackageResponseDTO.builder()
                 .packageId(tourPackage.getPackageId())
@@ -52,15 +61,17 @@ public class TourPackageMapper {
                 .description(tourPackage.getDescription())
                 .state(tourPackage.isState())
                 .categories(categoryInfos)
-                .mediaPackages(new ArrayList<>(uniqueMediaPackages))
+                .mediaPackages(mediaPackageDTOs)
                 .features(featureNames)
                 .build();
     }
 
     public List<TourPackageResponseDTO> toResponseDTOList(List<TourPackage> tourPackages) {
-        return tourPackages.stream()
-                .map(this::toResponseDTO)
-                .collect(Collectors.toList());
+        List<TourPackageResponseDTO> result = new ArrayList<>(tourPackages.size());
+        for (TourPackage tourPackage : tourPackages) {
+            result.add(toResponseDTO(tourPackage));
+        }
+        return result;
     }
 
     public TourPackage toEntity(TourPackageRequestDTO requestDTO) {

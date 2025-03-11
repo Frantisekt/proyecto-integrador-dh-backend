@@ -7,6 +7,7 @@ import com.backend.globeonclick.services.interfaces.ITourPackageService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,6 +26,15 @@ public class TourPackageController {
         this.tourPackageService = tourPackageService;
     }
 
+    @Operation(summary = "Obtener todos los paquetes (con paginación)")
+    @GetMapping("/paged")
+    public ResponseEntity<Page<TourPackageResponseDTO>> getAllPackages(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        Page<TourPackageResponseDTO> packages = tourPackageService.getAllTourPackagesPaginated(page, size);
+        return ResponseEntity.ok(packages);
+    }
+
     @Operation(summary = "Crear nuevo paquete")
     @PostMapping
     public ResponseEntity<TourPackageResponseDTO> createPackage(@RequestBody TourPackageRequestDTO packageDTO) {
@@ -32,12 +42,12 @@ public class TourPackageController {
         return new ResponseEntity<>(createdPackage, HttpStatus.CREATED);
     }
 
-    @Operation(summary = "Obtener todos los paquetes")
-    @GetMapping
-    public ResponseEntity<List<TourPackageResponseDTO>> getAllPackages() {
-        List<TourPackageResponseDTO> packages = tourPackageService.getAllTourPackages();
-        return ResponseEntity.ok(packages);
-    }
+//    @Operation(summary = "Obtener todos los paquetes")
+//    @GetMapping
+//    public ResponseEntity<List<TourPackageResponseDTO>> getAllPackages() {
+//        List<TourPackageResponseDTO> packages = tourPackageService.getAllTourPackages();
+//        return ResponseEntity.ok(packages);
+//    }
 
     @Operation(summary = "Obtener paquete por ID")
     @GetMapping("/{id}")

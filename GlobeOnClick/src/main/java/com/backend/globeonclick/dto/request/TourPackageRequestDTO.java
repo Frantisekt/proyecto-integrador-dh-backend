@@ -13,4 +13,5 @@ public class TourPackageRequestDTO {
     private boolean state;
     private List<Long> mediaPackageIds;
     private List<Long> featureIds;
+
 }

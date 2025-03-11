@@ -22,16 +22,16 @@ public class TourPackage {
     private boolean state = false;
 
     @Builder.Default
-    @ManyToMany(mappedBy = "tourPackages")
+    @ManyToMany(mappedBy = "tourPackages", fetch = FetchType.LAZY)
     private List<Category> categories = new ArrayList<>();
 
-    @ManyToMany(mappedBy = "tourPackages")
+    @ManyToMany(mappedBy = "tourPackages", fetch = FetchType.LAZY)
     private List<MediaPackage> mediaPackages = new ArrayList<>();
 
-    @OneToMany(mappedBy = "tourPackage")
+    @OneToMany(mappedBy = "tourPackage", fetch = FetchType.LAZY)
     private List<Reservation> reservations;
 
-    @ManyToMany(cascade = CascadeType.ALL)
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
     @JoinTable(
             name = "package_feature",
             joinColumns = @JoinColumn(name = "package_id"),
@@ -43,27 +43,50 @@ public class TourPackage {
         if (mediaPackages == null) {
             mediaPackages = new ArrayList<>();
         }
-        mediaPackages.add(mediaPackage);
-        mediaPackage.addTourPackage(this);
+        if (!mediaPackages.contains(mediaPackage)) {
+            mediaPackages.add(mediaPackage);
+        }
     }
 
     public void removeMediaPackage(MediaPackage mediaPackage) {
         mediaPackages.remove(mediaPackage);
-        mediaPackage.removeTourPackage(this);
     }
 
     public void addFeature(Feature feature) {
         if (features == null) {
             features = new ArrayList<>();
         }
-        features.add(feature);
-        if (!feature.getPackages().contains(this)) {
-            feature.getPackages().add(this);
+        if (!features.contains(feature)) {
+            features.add(feature);
         }
     }
 
     public void removeFeature(Feature feature) {
         features.remove(feature);
-        feature.getPackages().remove(this);
+    }
+
+    // Equals and hashCode methods based on ID
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        TourPackage that = (TourPackage) o;
+        return packageId != null && packageId.equals(that.packageId);
+    }
+
+    @Override
+    public int hashCode() {
+        return 31;
+    }
+
+    // ToString method that avoids circular references
+    @Override
+    public String toString() {
+        return "TourPackage{" +
+                "packageId=" + packageId +
+                ", title='" + title + '\'' +
+                ", description='" + description + '\'' +
+                ", state=" + state +
+                '}';
     }
 }
