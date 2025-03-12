@@ -45,7 +45,7 @@ public class SecurityConfiguration {
                 .requestMatchers(HttpMethod.POST, "/api/tourPackages/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_AGENT")
                 .requestMatchers(HttpMethod.PUT, "/api/tourPackages/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_AGENT")
                 .requestMatchers(HttpMethod.DELETE, "/api/tourPackages/**").hasAuthority("ROLE_ADMIN")*/
-                .anyRequest().authenticated()
+                .anyRequest().permitAll()
             )
             .sessionManagement(session -> 
                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)

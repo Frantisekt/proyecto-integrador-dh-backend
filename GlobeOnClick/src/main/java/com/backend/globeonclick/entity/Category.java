@@ -22,6 +22,7 @@ public class Category {
     private TourPackage tourPackage;
 
     private String title;
+    //Aumentar tamaño de la descripción
     private String description;
     private Double price;
     private String currency;
