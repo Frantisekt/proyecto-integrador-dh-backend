@@ -22,7 +22,7 @@ public class Category {
     private TourPackage tourPackage;
 
     private String title;
-    //Aumentar tamaño de la descripción
+    @Column(columnDefinition = "LONGTEXT")
     private String description;
     private Double price;
     private String currency;
