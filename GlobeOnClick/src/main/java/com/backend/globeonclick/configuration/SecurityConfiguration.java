@@ -41,10 +41,10 @@ public class SecurityConfiguration {
                     .requestMatchers("/api/v1/users/**")
                     .permitAll().requestMatchers("/api/admins/**").hasAuthority("ROLE_ADMIN")
                 .requestMatchers("/api/users/**").hasAuthority("ROLE_USER")
-                    .requestMatchers(HttpMethod.GET, "/api/tourPackages/**").hasAnyAuthority("ROLE_USER", "ROLE_AGENT", "ROLE_ADMIN")
-                    .requestMatchers(HttpMethod.POST, "/api/tourPackages/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_AGENT")
-                    .requestMatchers(HttpMethod.PUT, "/api/tourPackages/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_AGENT")
-                    .requestMatchers(HttpMethod.DELETE, "/api/tourPackages/**").hasAuthority("ROLE_ADMIN")
+                /*.requestMatchers(HttpMethod.GET, "/api/tourPackages/**").hasAnyAuthority("ROLE_USER", "ROLE_AGENT", "ROLE_ADMIN")
+                .requestMatchers(HttpMethod.POST, "/api/tourPackages/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_AGENT")
+                .requestMatchers(HttpMethod.PUT, "/api/tourPackages/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_AGENT")
+                .requestMatchers(HttpMethod.DELETE, "/api/tourPackages/**").hasAuthority("ROLE_ADMIN")*/
                 .anyRequest().authenticated()
             )
             .sessionManagement(session -> 
