@@ -22,6 +22,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -53,12 +54,6 @@ public class TourPackageService implements ITourPackageService {
         TourPackage savedTourPackage = tourPackageRepository.save(tourPackage);
         return tourPackageMapper.toResponseDTO(savedTourPackage);
     }
-
-    /*@Override
-    public List<TourPackageResponseDTO> getAllTourPackages() {
-        List<TourPackage> tourPackages = tourPackageRepository.findAllWithRelationships();
-        return tourPackageMapper.toResponseDTOList(tourPackages);
-    }*/
 
     @Override
     public Page<TourPackageResponseDTO> getAllTourPackagesPaginated(int page, int size) {
@@ -240,4 +235,3 @@ public class TourPackageService implements ITourPackageService {
         tourPackageRepository.save(tourPackage);
     }
 }
-

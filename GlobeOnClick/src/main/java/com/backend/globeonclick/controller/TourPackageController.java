@@ -43,13 +43,6 @@ public class TourPackageController {
         return new ResponseEntity<>(createdPackage, HttpStatus.CREATED);
     }
 
-//    @Operation(summary = "Obtener todos los paquetes")
-//    @GetMapping
-//    public ResponseEntity<List<TourPackageResponseDTO>> getAllPackages() {
-//        List<TourPackageResponseDTO> packages = tourPackageService.getAllTourPackages();
-//        return ResponseEntity.ok(packages);
-//    }
-
     @Operation(summary = "Obtener paquete por ID")
     @GetMapping("/{id}")
     public ResponseEntity<TourPackageResponseDTO> getPackageById(@PathVariable Long id) {

@@ -3,6 +3,7 @@ package com.backend.globeonclick.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,6 +39,10 @@ public class TourPackage {
             inverseJoinColumns = @JoinColumn(name = "feature_id")
     )
     private List<Feature> features = new ArrayList<>();
+
+    private LocalDate start_date;
+    private LocalDate end_date;
+    private Double price;
 
     public void addMediaPackage(MediaPackage mediaPackage) {
         if (mediaPackages == null) {
