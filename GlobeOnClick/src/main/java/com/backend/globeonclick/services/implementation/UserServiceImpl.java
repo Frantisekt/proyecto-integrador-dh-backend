@@ -74,7 +74,10 @@ public class UserServiceImpl implements IUserService {
 
         userMapper.updateEntity(user, userDTO);
 
-        user.setRole(Role.USER);
+        // Validar que el rol sea válido
+        if (userDTO.getRole() != null) {
+            user.setRole(userDTO.getRole());
+        }
 
         if (userDTO.getPassword() != null && !userDTO.getPassword().isEmpty()) {
             user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
