@@ -6,6 +6,7 @@ import com.backend.globeonclick.authentication.response.AuthenticationResponse;
 import com.backend.globeonclick.configuration.jwt.JwtService;
 import com.backend.globeonclick.entity.User;
 import com.backend.globeonclick.entity.Admin;
+import com.backend.globeonclick.entity.Role;
 import com.backend.globeonclick.repository.IUserRepository;
 import com.backend.globeonclick.repository.IAdminRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,28 +39,48 @@ public class AuthenticationService {
     }
 
     public AuthenticationResponse register(RegisterRequest request) {
-        var user = User.builder()
-                .name(request.getName())
-                .paternalSurname(request.getPaternalSurname())
-                .maternalSurname(request.getMaternalSurname())
-                .username(request.getUsername())
-                .email(request.getEmail())
-                .password(passwordEncoder.encode(request.getPassword()))
-                .dni(request.getDni())
-                .newsletter(request.getNewsletter())
-                .state(true)
-                .build();
-        userRepository.save(user);
-        var jwt = jwtService.generateToken(user);
-        return AuthenticationResponse.builder()
-                .token(jwt)
-                .type("USER")
-                .role(user.getRole() != null ? user.getRole().name() : null)
-                .userId(user.getUserId())
-                .username(user.getUsername())
-                .email(user.getEmail())
-                .name(user.getName())
-                .build();
+        try {
+            // Validar si el email ya existe
+            if (userRepository.existsByEmail(request.getEmail())) {
+                throw new RuntimeException("El email ya está registrado");
+            }
+
+            // Validar si el DNI ya existe
+            if (userRepository.existsByDni(request.getDni())) {
+                throw new RuntimeException("El DNI ya está registrado");
+            }
+
+            var user = User.builder()
+                    .name(request.getName())
+                    .paternalSurname(request.getPaternalSurname())
+                    .maternalSurname(request.getMaternalSurname())
+                    .username(request.getUsername())
+                    .email(request.getEmail().toLowerCase().trim()) // Normalizar email
+                    .password(passwordEncoder.encode(request.getPassword()))
+                    .dni(request.getDni().trim()) // Normalizar DNI
+                    .newsletter(request.getNewsletter())
+                    .role(Role.USER)
+                    .state(true)
+                    .build();
+
+            user = userRepository.save(user);
+            var jwt = jwtService.generateToken(user);
+
+            return AuthenticationResponse.builder()
+                    .token(jwt)
+                    .type("USER")
+                    .role("USER")
+                    .userId(user.getUserId())
+                    .username(user.getUsername())
+                    .email(user.getEmail())
+                    .name(user.getName())
+                    .build();
+        } catch (Exception e) {
+            if (e instanceof RuntimeException) {
+                throw e;
+            }
+            throw new RuntimeException("Error al registrar usuario: " + e.getMessage());
+        }
     }
 
     public AuthenticationResponse login(AuthenticationRequest request) {
