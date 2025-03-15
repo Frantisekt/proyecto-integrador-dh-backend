@@ -2,7 +2,7 @@ package com.backend.globeonclick.services.implementation;
 
 import com.backend.globeonclick.dto.response.FeatureResponseDTO;
 import com.backend.globeonclick.entity.Feature;
-import com.backend.globeonclick.entity.FeatureName;
+
 import com.backend.globeonclick.entity.TourPackage;
 import com.backend.globeonclick.repository.FeatureRepository;
 import com.backend.globeonclick.repository.ITourPackageRepository;
@@ -22,17 +22,24 @@ public class FeatureService {
     private final ITourPackageRepository tourPackageRepository;
     private final FeatureMapper featureMapper;
 
+    // Nuevo método para crear feature con nombre y displayName
     @Transactional
-    public FeatureResponseDTO createFeature(FeatureName featureName) {
-        if (featureRepository.existsByName(featureName)) {
-            throw new IllegalArgumentException("La característica ya existe: " + featureName);
+    public FeatureResponseDTO createFeature(String name, String displayName) {
+        if (featureRepository.existsByName(name)) {
+            throw new IllegalArgumentException("La característica ya existe: " + name);
         }
 
         Feature feature = Feature.builder()
-                .name(featureName)
+                .name(name)
+                .displayName(displayName)
                 .build();
 
         return featureMapper.toDTO(featureRepository.save(feature));
+    }
+
+    @Transactional
+    public FeatureResponseDTO createFeature(String featureName) {
+        return createFeature(featureName, featureName);
     }
 
     @Transactional(readOnly = true)
@@ -43,7 +50,7 @@ public class FeatureService {
     }
 
     @Transactional
-    public void addFeatureToPackage(Long packageId, FeatureName featureName) {
+    public void addFeatureToPackage(Long packageId, String featureName) {
         TourPackage tourPackage = tourPackageRepository.findById(packageId)
                 .orElseThrow(() -> new EntityNotFoundException("Paquete no encontrado con ID: " + packageId));
 
@@ -54,13 +61,12 @@ public class FeatureService {
                             .orElseThrow(() -> new EntityNotFoundException("Error al crear la característica: " + featureName));
                 });
 
-
         tourPackage.addFeature(feature);
         tourPackageRepository.save(tourPackage);
     }
 
     @Transactional
-    public void removeFeatureFromPackage(Long packageId, FeatureName featureName) {
+    public void removeFeatureFromPackage(Long packageId, String featureName) {
         TourPackage tourPackage = tourPackageRepository.findById(packageId)
                 .orElseThrow(() -> new EntityNotFoundException("Paquete no encontrado con ID: " + packageId));
 

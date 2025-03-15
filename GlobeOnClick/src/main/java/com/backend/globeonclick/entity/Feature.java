@@ -17,10 +17,11 @@ public class Feature {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long featureId;
 
-    @Enumerated(EnumType.STRING)
     @Column(unique = true, length = 255)
-    //@Column(unique = true, columnDefinition = "VARCHAR(255)")
-    private FeatureName name;
+    private String name;
+
+    @Column(length = 255)
+    private String displayName;
 
     @ManyToMany(mappedBy = "features")
     private List<TourPackage> packages = new ArrayList<>();

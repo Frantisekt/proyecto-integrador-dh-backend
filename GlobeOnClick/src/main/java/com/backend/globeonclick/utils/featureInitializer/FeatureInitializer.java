@@ -21,8 +21,11 @@ public class FeatureInitializer implements CommandLineRunner {
     @Override
     public void run(String... args) {
         Arrays.stream(FeatureName.values()).forEach(featureName -> {
-            if (!featureRepository.existsByName(featureName)) {
-                Feature feature = Feature.builder().name(featureName).build();
+            if (!featureRepository.existsByName(featureName.name())) {
+                Feature feature = Feature.builder()
+                        .name(featureName.name())
+                        .displayName(featureName.getDisplayName())
+                        .build();
                 featureRepository.save(feature);
             }
         });

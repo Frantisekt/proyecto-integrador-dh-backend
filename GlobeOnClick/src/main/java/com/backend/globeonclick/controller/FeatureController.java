@@ -1,7 +1,6 @@
 package com.backend.globeonclick.controller;
 
 import com.backend.globeonclick.dto.response.FeatureResponseDTO;
-import com.backend.globeonclick.entity.FeatureName;
 import com.backend.globeonclick.services.implementation.FeatureService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -17,8 +16,10 @@ public class FeatureController {
     private final FeatureService featureService;
 
     @PostMapping("/create")
-    public ResponseEntity<FeatureResponseDTO> createFeature(@RequestParam FeatureName featureName) {
-        return new ResponseEntity<>(featureService.createFeature(featureName), HttpStatus.CREATED);
+    public ResponseEntity<FeatureResponseDTO> createFeature(
+            @RequestParam String name,
+            @RequestParam String displayName) {
+        return new ResponseEntity<>(featureService.createFeature(name, displayName), HttpStatus.CREATED);
     }
 
     @GetMapping
@@ -29,7 +30,7 @@ public class FeatureController {
     @PostMapping("/add-to-package")
     public ResponseEntity<Void> addFeatureToPackage(
             @RequestParam Long packageId,
-            @RequestParam FeatureName featureName) {
+            @RequestParam String featureName) {
         featureService.addFeatureToPackage(packageId, featureName);
         return ResponseEntity.ok().build();
     }
@@ -37,7 +38,7 @@ public class FeatureController {
     @DeleteMapping("/remove-from-package")
     public ResponseEntity<Void> removeFeatureFromPackage(
             @RequestParam Long packageId,
-            @RequestParam FeatureName featureName) {
+            @RequestParam String featureName) {
         featureService.removeFeatureFromPackage(packageId, featureName);
         return ResponseEntity.ok().build();
     }

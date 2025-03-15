@@ -53,7 +53,7 @@ public class TourPackageMapper {
         // 5. Extraer solo los nombres de features sin stream
         List<FeatureName> featureNames = new ArrayList<>(tourPackage.getFeatures().size());
         for (Feature feature : tourPackage.getFeatures()) {
-            featureNames.add(feature.getName());
+            featureNames.add(FeatureName.valueOf(feature.getName()));
         }
 
         return TourPackageResponseDTO.builder()
