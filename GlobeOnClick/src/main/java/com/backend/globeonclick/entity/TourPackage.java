@@ -45,6 +45,9 @@ public class TourPackage {
     private LocalDate end_date;
     private Double price;
 
+    @ManyToMany(mappedBy = "favoritePackages", fetch = FetchType.LAZY)
+    private List<User> favoriteByUsers = new ArrayList<>();
+
     public void addMediaPackage(MediaPackage mediaPackage) {
         if (mediaPackages == null) {
             mediaPackages = new ArrayList<>();

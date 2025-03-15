@@ -3,6 +3,8 @@ package com.backend.globeonclick.dto.response;
 import com.backend.globeonclick.entity.Role;
 import lombok.*;
 
+import java.util.List;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -17,4 +19,5 @@ public class UserResponseDTO {
     private String dni;
     private String newsletter;
     private Role role;
+    private List<Long> favoritePackageIds;
 }

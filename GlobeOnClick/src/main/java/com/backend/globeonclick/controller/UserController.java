@@ -53,6 +53,4 @@ public class UserController {
     public ResponseEntity<UserResponseDTO> getUserByDni(@PathVariable String dni) {
         return ResponseEntity.ok(userService.getUserByDni(dni));
     }
-
-    // Otros endpoints...
 }

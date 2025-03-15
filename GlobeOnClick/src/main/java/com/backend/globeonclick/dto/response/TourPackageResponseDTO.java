@@ -21,6 +21,7 @@ public class TourPackageResponseDTO {
     private List<CategoryBasicInfo> categories;
     private List<MediaPackageResponseDTO> mediaPackages;
     private List<FeatureName> features;
+    private Boolean isFavorite = false;
 
     @Data
     @Builder

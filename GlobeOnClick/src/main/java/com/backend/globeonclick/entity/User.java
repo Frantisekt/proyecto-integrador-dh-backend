@@ -6,6 +6,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -35,6 +36,15 @@ public class User implements UserDetails {
 
     @OneToMany(mappedBy = "user")
     private List<Reservation> reservations;
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "user_favorite_packages",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "package_id")
+    )
+    private List<TourPackage> favoritePackages = new ArrayList<>();
+
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -73,5 +83,20 @@ public class User implements UserDetails {
     @Override
     public boolean isEnabled() {
         return true;
+    }
+
+    public void addFavoritePackage(TourPackage tourPackage) {
+        if (favoritePackages == null) {
+            favoritePackages = new ArrayList<>();
+        }
+        if (!favoritePackages.contains(tourPackage)) {
+            favoritePackages.add(tourPackage);
+        }
+    }
+
+    public void removeFavoritePackage(TourPackage tourPackage) {
+        if (favoritePackages != null) {
+            favoritePackages.remove(tourPackage);
+        }
     }
 }
