@@ -19,6 +19,7 @@ public class TourPackage {
     private Long packageId;
 
     private String title;
+    @Column(columnDefinition = "LONGTEXT")
     private String description;
     private boolean state = false;
 

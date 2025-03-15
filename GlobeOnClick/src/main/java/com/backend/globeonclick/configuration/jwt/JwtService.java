@@ -63,10 +63,11 @@ public class JwtService {
             Map<String, Object> extractClaims,
             UserDetails userDetails
     ) {
+        String email = userDetails instanceof com.backend.globeonclick.entity.User ? ((com.backend.globeonclick.entity.User) userDetails).getAuthenticationUsername() : userDetails.getUsername();
         return Jwts
                 .builder()
                 .setClaims(extractClaims)
-                .setSubject(userDetails.getUsername())
+                .setSubject(email)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24))
                 .signWith(getSignInKey(), SignatureAlgorithm.HS256)
@@ -74,8 +75,9 @@ public class JwtService {
     }
 
     public boolean isTokenValid(String token, UserDetails userDetails) {
-        final String username = extractUserName(token);
-        return (username.equals(userDetails.getUsername())) && !isTokenExpired(token);
+        final String email = extractUserName(token);
+        String userEmail = userDetails instanceof com.backend.globeonclick.entity.User ? ((com.backend.globeonclick.entity.User) userDetails).getAuthenticationUsername() : userDetails.getUsername();
+        return (email.equals(userEmail)) && !isTokenExpired(token);
     }
 
     public boolean isTokenExpired(String token) {

@@ -13,6 +13,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -34,8 +35,12 @@ public class UserServiceImpl implements IUserService {
         }
 
         User user = userMapper.toEntity(userDTO);
-        // Asegurarse de que el rol siempre sea USER
-        user.setRole(Role.USER);
+        
+        // Establecer rol por defecto si no viene especificado
+        if (userDTO.getRole() == null) {
+            user.setRole(Role.USER);
+        }
+
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         user = userRepository.save(user);
         return userMapper.toResponseDTO(user);
