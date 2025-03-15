@@ -92,12 +92,22 @@ public class CategoryService implements ICategoryService {
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Category not found with id: " + id));
 
+        // Limpiar la relación con los paquetes turísticos
+        category.getTourPackages().forEach(tourPackage -> 
+            tourPackage.getCategories().remove(category)
+        );
         category.getTourPackages().clear();
-        categoryRepository.save(category);
 
+        // Limpiar la relación con las medias
+        category.getMediaCategories().forEach(mediaCategory -> 
+            mediaCategory.getCategories().remove(category)
+        );
         category.getMediaCategories().clear();
+
+        // Guardar los cambios en las relaciones
         categoryRepository.save(category);
 
+        // Finalmente eliminar la categoría
         categoryRepository.delete(category);
     }
 
