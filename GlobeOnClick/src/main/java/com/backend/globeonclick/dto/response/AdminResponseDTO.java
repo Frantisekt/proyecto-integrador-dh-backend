@@ -14,4 +14,5 @@ public class AdminResponseDTO {
     private String username;
     private Role role;
     private boolean state;  // Cambiado de adminState a state
+    private String type;
 }

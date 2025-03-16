@@ -22,12 +22,18 @@ public class AuthenticationController {
     @PostMapping("/register")
     public ResponseEntity<AuthenticationResponse> register (
             @RequestBody RegisterRequest request){
-                return ResponseEntity.ok(authenticationService.register(request));
+        return ResponseEntity.ok(authenticationService.register(request));
     }
 
     @PostMapping("/login")
     public ResponseEntity<AuthenticationResponse> login (
             @RequestBody AuthenticationRequest request){
-            return ResponseEntity.ok(authenticationService.login(request));
+        return ResponseEntity.ok(authenticationService.login(request));
+    }
+
+    @PostMapping("/admin/login")
+    public ResponseEntity<AuthenticationResponse> adminLogin(
+            @RequestBody AuthenticationRequest request) {
+        return ResponseEntity.ok(authenticationService.adminLogin(request));
     }
 }

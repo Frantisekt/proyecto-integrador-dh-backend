@@ -4,10 +4,8 @@ import com.backend.globeonclick.dto.request.CategoryRequestDTO;
 import com.backend.globeonclick.dto.response.CategoryResponseDTO;
 import com.backend.globeonclick.dto.response.MediaCategoryResponseDTO;
 import com.backend.globeonclick.entity.Category;
-import com.backend.globeonclick.entity.Media;
 import com.backend.globeonclick.entity.MediaCategory;
 import com.backend.globeonclick.repository.IMediaCategoryRepository;
-import com.backend.globeonclick.repository.IMediaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -19,7 +17,6 @@ import java.util.stream.Collectors;
 public class CategoryMapper {
 
     private final MediaCategoryMapper mediaCategoryMapper;
-    private final IMediaRepository mediaRepository;
     private final IMediaCategoryRepository mediaCategoryRepository;
 
     public CategoryResponseDTO toResponseDTO(Category category) {

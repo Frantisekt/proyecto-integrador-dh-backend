@@ -16,7 +16,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/media")
-@CrossOrigin(origins = "*")
 @Validated
 public class MediaController {
 
@@ -31,12 +30,6 @@ public class MediaController {
     public ResponseEntity<MediaResponseDTO> uploadMedia(
             @RequestParam("file") @NotNull MultipartFile file) {
         if (file.isEmpty()) {
-            return ResponseEntity.badRequest().build();
-        }
-
-        // Validar tipo de archivo si es necesario
-        String contentType = file.getContentType();
-        if (contentType == null || !contentType.startsWith("image/")) {
             return ResponseEntity.badRequest().build();
         }
 
@@ -68,6 +61,25 @@ public class MediaController {
                     .map(ResponseEntity::ok)
                     .orElse(ResponseEntity.notFound().build());
         } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<MediaResponseDTO> updateMedia(
+            @PathVariable @Positive Long id,
+            @RequestParam("file") @NotNull MultipartFile file) {
+        if (file.isEmpty()) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        try {
+            MediaResponseDTO response = mediaService.updateMedia(id, file);
+            return ResponseEntity.ok(response);
+        } catch (RuntimeException e) {
+            if (e.getMessage().contains("not found")) {
+                return ResponseEntity.notFound().build();
+            }
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }

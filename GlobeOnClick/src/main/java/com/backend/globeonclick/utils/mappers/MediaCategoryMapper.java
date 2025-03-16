@@ -2,11 +2,9 @@ package com.backend.globeonclick.utils.mappers;
 
 import com.backend.globeonclick.dto.request.MediaCategoryRequestDTO;
 import com.backend.globeonclick.dto.response.MediaCategoryResponseDTO;
-import com.backend.globeonclick.entity.Category;
 import com.backend.globeonclick.entity.Media;
 import com.backend.globeonclick.entity.MediaCategory;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
@@ -14,8 +12,6 @@ import java.util.Optional;
 @Component
 @RequiredArgsConstructor
 public class MediaCategoryMapper {
-
-    private final MediaMapper mediaMapper;
 
     public MediaCategoryResponseDTO toResponseDTO(MediaCategory mediaCategory) {
         if (mediaCategory == null) return null;
@@ -35,8 +31,9 @@ public class MediaCategoryMapper {
                 .build();
     }
 
-    public MediaCategory toEntity(MediaCategoryRequestDTO requestDTO) {
+    public MediaCategory toEntity(MediaCategoryRequestDTO requestDTO, Media media) {
         return MediaCategory.builder()
+                .media(media)
                 .mediaTitle(requestDTO.getMediaTitle())
                 .mediaDescription(requestDTO.getMediaDescription())
                 .build();

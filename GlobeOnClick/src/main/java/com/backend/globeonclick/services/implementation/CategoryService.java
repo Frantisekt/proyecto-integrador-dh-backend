@@ -35,17 +35,7 @@ public class CategoryService implements ICategoryService {
 
     @Override
     public CategoryResponseDTO createCategory(CategoryRequestDTO requestDTO) {
-        Category category = Category.builder()
-                .title(requestDTO.getTitle())
-                .description(requestDTO.getDescription())
-                .price(requestDTO.getPrice())
-                .currency(requestDTO.getCurrency())
-                .restrictions(requestDTO.getRestrictions())
-                .state(requestDTO.isState())
-                .discount(requestDTO.getDiscount())
-                .tourPackages(new ArrayList<>())
-                .mediaCategories(new ArrayList<>())
-                .build();
+        Category category = categoryMapper.toEntity(requestDTO);
 
         category = categoryRepository.save(category);
 
@@ -99,11 +89,28 @@ public class CategoryService implements ICategoryService {
 
     @Override
     public void deleteCategory(Long id) {
-        if (!categoryRepository.existsById(id)) {
-            throw new RuntimeException("Category not found with id: " + id);
-        }
-        categoryRepository.deleteById(id);
+        Category category = categoryRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Category not found with id: " + id));
+
+        // Limpiar la relación con los paquetes turísticos
+        category.getTourPackages().forEach(tourPackage -> 
+            tourPackage.getCategories().remove(category)
+        );
+        category.getTourPackages().clear();
+
+        // Limpiar la relación con las medias
+        category.getMediaCategories().forEach(mediaCategory -> 
+            mediaCategory.getCategories().remove(category)
+        );
+        category.getMediaCategories().clear();
+
+        // Guardar los cambios en las relaciones
+        categoryRepository.save(category);
+
+        // Finalmente eliminar la categoría
+        categoryRepository.delete(category);
     }
+
 
     @Override
     public List<CategoryResponseDTO> getCategoriesByTourPackageId(Long tourPackageId) {

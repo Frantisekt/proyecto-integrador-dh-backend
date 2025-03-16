@@ -2,11 +2,13 @@ package com.backend.globeonclick.utils.mappers;
 
 import com.backend.globeonclick.dto.request.UserRequestDTO;
 import com.backend.globeonclick.dto.response.UserResponseDTO;
+import com.backend.globeonclick.entity.TourPackage;
 import com.backend.globeonclick.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -18,6 +20,13 @@ public class UserMapper {
     public UserResponseDTO toResponseDTO(User user) {
         if (user == null) return null;
 
+        List<Long> favoriteIds = new ArrayList<>();
+        if (user.getFavoritePackages() != null && !user.getFavoritePackages().isEmpty()) {
+            favoriteIds = user.getFavoritePackages().stream()
+                    .map(TourPackage::getPackageId)
+                    .collect(Collectors.toList());
+        }
+
         return UserResponseDTO.builder()
                 .userId(user.getUserId())
                 .name(user.getName())
@@ -28,6 +37,7 @@ public class UserMapper {
                 .dni(user.getDni())
                 .newsletter(user.getNewsletter())
                 .role(user.getRole())
+                .favoritePackageIds(favoriteIds)
                 .build();
     }
 
@@ -64,5 +74,8 @@ public class UserMapper {
         }
         user.setDni(requestDTO.getDni());
         user.setNewsletter(requestDTO.getNewsletter());
+        user.setRole(requestDTO.getRole());
     }
+
+
 }

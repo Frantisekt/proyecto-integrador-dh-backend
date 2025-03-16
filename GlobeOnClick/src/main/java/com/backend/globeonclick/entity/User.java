@@ -6,6 +6,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -14,7 +15,11 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "users")
+@Table(name = "users",
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = "email"),
+                @UniqueConstraint(columnNames = "dni")
+        })
 public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -36,9 +41,18 @@ public class User implements UserDetails {
     @OneToMany(mappedBy = "user")
     private List<Reservation> reservations;
 
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "user_favorite_packages",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "package_id")
+    )
+    private List<TourPackage> favoritePackages = new ArrayList<>();
+
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority("ROLE_" + role.name()));
+        return List.of(new SimpleGrantedAuthority("ROLE_" + (role != null ? role.name() : "USER")));
     }
 
     @Override
@@ -48,7 +62,11 @@ public class User implements UserDetails {
 
     @Override
     public String getUsername() {
-        return username;
+        return this.username;
+    }
+
+    public String getAuthenticationUsername() {
+        return this.email;
     }
 
     @Override
@@ -69,5 +87,20 @@ public class User implements UserDetails {
     @Override
     public boolean isEnabled() {
         return true;
+    }
+
+    public void addFavoritePackage(TourPackage tourPackage) {
+        if (favoritePackages == null) {
+            favoritePackages = new ArrayList<>();
+        }
+        if (!favoritePackages.contains(tourPackage)) {
+            favoritePackages.add(tourPackage);
+        }
+    }
+
+    public void removeFavoritePackage(TourPackage tourPackage) {
+        if (favoritePackages != null) {
+            favoritePackages.remove(tourPackage);
+        }
     }
 }

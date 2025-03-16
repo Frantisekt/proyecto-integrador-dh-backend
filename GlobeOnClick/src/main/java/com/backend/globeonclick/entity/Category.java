@@ -22,6 +22,7 @@ public class Category {
     private TourPackage tourPackage;
 
     private String title;
+    @Column(columnDefinition = "LONGTEXT")
     private String description;
     private Double price;
     private String currency;
@@ -29,7 +30,7 @@ public class Category {
     private boolean state;
     private Double discount;
 
-    @ManyToMany
+    @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(
             name = "package_category",
             joinColumns = @JoinColumn(name = "category_id"),

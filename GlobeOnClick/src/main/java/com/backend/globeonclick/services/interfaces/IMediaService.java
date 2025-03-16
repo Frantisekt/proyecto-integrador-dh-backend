@@ -13,5 +13,7 @@ public interface IMediaService {
 
     Optional<MediaResponseDTO> getMediaById(Long id);
 
+    MediaResponseDTO updateMedia(Long id, MultipartFile newFile);
+
     void deleteMedia(Long id);
 }

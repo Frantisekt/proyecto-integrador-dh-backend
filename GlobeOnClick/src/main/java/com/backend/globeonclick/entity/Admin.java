@@ -7,6 +7,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 @Data
@@ -32,6 +33,9 @@ public class Admin implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
+        if (role == null) {
+            return List.of(new SimpleGrantedAuthority("ROLE_ADMIN"));
+        }
         return List.of(new SimpleGrantedAuthority("ROLE_" + role.name()));
     }
 
@@ -42,7 +46,7 @@ public class Admin implements UserDetails {
 
     @Override
     public String getUsername() {
-        return username;
+        return this.email;
     }
 
     @Override
@@ -62,6 +66,6 @@ public class Admin implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return state;
+        return this.state;
     }
 }

@@ -11,6 +11,11 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class AuthenticationResponse {
     private String token;
-    private String type; // "USER" o "ADMIN"
-    private String role; // null para USER, ADMIN o AGENT para admins
+    private String type;    // "USER" o "ADMIN"
+    private String role;    // Rol específico del usuario
+    private Long userId;    // ID del usuario (si es usuario normal)
+    private Long adminId;   // ID del admin (si es administrador)
+    private String username;
+    private String email;
+    private String name;
 }

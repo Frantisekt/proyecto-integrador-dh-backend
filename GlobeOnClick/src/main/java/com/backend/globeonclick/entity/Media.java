@@ -3,6 +3,7 @@ package com.backend.globeonclick.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -21,4 +22,7 @@ public class Media {
 
     @OneToMany(mappedBy = "media")
     private List<MediaCategory> mediaCategories;
+
+    @OneToMany(mappedBy = "media")
+    private List<MediaPackage> mediaPackages;
 }
