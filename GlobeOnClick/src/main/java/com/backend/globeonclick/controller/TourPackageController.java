@@ -102,4 +102,10 @@ public class TourPackageController {
         tourPackageService.removeMediaFromTourPackage(packageId, mediaPackageId);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/batch")
+    public ResponseEntity<List<TourPackageResponseDTO>> getPackagesByIds(@RequestParam("ids") List<Long> packageIds) {
+        List<TourPackageResponseDTO> packages = tourPackageService.findPackagesByIds(packageIds);
+        return ResponseEntity.ok(packages);
+    }
 }

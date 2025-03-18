@@ -9,6 +9,7 @@ import com.backend.globeonclick.exception.ResourceNotFoundException;
 import com.backend.globeonclick.repository.IMediaPackageRepository;
 import com.backend.globeonclick.repository.ITourPackageRepository;
 import com.backend.globeonclick.services.interfaces.ITourPackageService;
+import com.backend.globeonclick.services.interfaces.IPriceRangeService;
 import com.backend.globeonclick.utils.mappers.TourPackageMapper;
 
 import jakarta.persistence.EntityManager;
@@ -34,6 +35,7 @@ public class TourPackageService implements ITourPackageService {
     private final ITourPackageRepository tourPackageRepository;
     private final TourPackageMapper tourPackageMapper;
     private final IMediaPackageRepository mediaPackageRepository;
+    private final IPriceRangeService priceRangeService;
 
     @Autowired
     private EntityManager entityManager;
@@ -52,6 +54,11 @@ public class TourPackageService implements ITourPackageService {
         }
 
         TourPackage savedTourPackage = tourPackageRepository.save(tourPackage);
+        
+        if (savedTourPackage.getPrice() != null) {
+            priceRangeService.assignPackageToPriceRange(savedTourPackage);
+        }
+
         return tourPackageMapper.toResponseDTO(savedTourPackage);
     }
 
@@ -157,6 +164,7 @@ public class TourPackageService implements ITourPackageService {
     public TourPackageResponseDTO updateTourPackage(Long id, TourPackageRequestDTO requestDTO) {
         return tourPackageRepository.findById(id)
                 .map(tourPackage -> {
+                    Double oldPrice = tourPackage.getPrice();
                     tourPackageMapper.updateEntity(tourPackage, requestDTO);
 
                     tourPackage.getMediaPackages().clear();
@@ -166,6 +174,11 @@ public class TourPackageService implements ITourPackageService {
                     }
 
                     TourPackage updatedTourPackage = tourPackageRepository.save(tourPackage);
+
+                    if (!Objects.equals(oldPrice, updatedTourPackage.getPrice())) {
+                        priceRangeService.updatePackagePriceRange(updatedTourPackage);
+                    }
+
                     return tourPackageMapper.toResponseDTO(updatedTourPackage);
                 })
                 .orElse(null);
@@ -233,5 +246,68 @@ public class TourPackageService implements ITourPackageService {
 
         mediaPackageRepository.save(mediaPackage);
         tourPackageRepository.save(tourPackage);
+    }
+
+    public Page<TourPackageResponseDTO> findPackagesInPriceRange(Double minPrice, Double maxPrice, Pageable pageable) {
+        List<TourPackage> packages = priceRangeService.findPackagesInPriceRange(minPrice, maxPrice);
+        
+        int start = (int) pageable.getOffset();
+        int end = Math.min((start + pageable.getPageSize()), packages.size());
+        
+        List<TourPackageResponseDTO> dtoList = packages.subList(start, end).stream()
+                .map(tourPackageMapper::toResponseDTO)
+                .toList();
+
+        return new PageImpl<>(dtoList, pageable, packages.size());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<TourPackageResponseDTO> findPackagesByIds(List<Long> packageIds) {
+        if (packageIds == null || packageIds.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        List<TourPackage> packages = entityManager.createQuery(
+                "SELECT DISTINCT tp FROM TourPackage tp " +
+                        "LEFT JOIN FETCH tp.categories " +
+                        "LEFT JOIN FETCH tp.features " +
+                        "WHERE tp.packageId IN :ids", TourPackage.class)
+                .setParameter("ids", packageIds)
+                .getResultList();
+
+        // Cargar las imágenes para cada paquete
+        if (!packages.isEmpty()) {
+            Map<Long, List<MediaPackage>> mediaPackagesMap = new HashMap<>();
+            List<MediaPackage> mediaPackages = entityManager.createQuery(
+                            "SELECT mp FROM MediaPackage mp " +
+                                    "JOIN mp.tourPackages tp " +
+                                    "JOIN FETCH mp.media " +
+                                    "WHERE tp.packageId IN :ids " +
+                                    "ORDER BY mp.mediaPackageId", MediaPackage.class)
+                    .setParameter("ids", packageIds)
+                    .setMaxResults(packageIds.size() * 20)
+                    .getResultList();
+
+            for (MediaPackage mp : mediaPackages) {
+                for (TourPackage tp : mp.getTourPackages()) {
+                    if (packageIds.contains(tp.getPackageId())) {
+                        mediaPackagesMap.computeIfAbsent(tp.getPackageId(), k -> new ArrayList<>())
+                                .add(mp);
+                    }
+                }
+            }
+
+            mediaPackagesMap.forEach((packageId, mps) -> {
+                packages.stream()
+                        .filter(tp -> tp.getPackageId().equals(packageId))
+                        .findFirst()
+                        .ifPresent(tp -> tp.setMediaPackages(mps.size() <= 20 ? mps : mps.subList(0, 20)));
+            });
+        }
+
+        return packages.stream()
+                .map(tourPackageMapper::toResponseDTO)
+                .collect(Collectors.toList());
     }
 }
