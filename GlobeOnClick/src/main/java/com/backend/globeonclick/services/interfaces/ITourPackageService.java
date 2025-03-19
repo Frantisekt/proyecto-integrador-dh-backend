@@ -27,4 +27,6 @@ public interface ITourPackageService {
     TourPackageResponseDTO addMediaToTourPackage(Long packageId, Long mediaPackageId);
 
     void removeMediaFromTourPackage(Long packageId, Long mediaPackageId);
+
+    List<TourPackageResponseDTO> findPackagesByIds(List<Long> packageIds);
 }
