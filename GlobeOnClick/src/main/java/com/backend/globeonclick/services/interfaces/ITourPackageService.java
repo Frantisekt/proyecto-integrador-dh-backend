@@ -6,6 +6,7 @@ import com.backend.globeonclick.dto.response.TourPackageResponseDTO;
 import com.backend.globeonclick.entity.TourPackage;
 import org.springframework.data.domain.Page;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -14,6 +15,8 @@ public interface ITourPackageService {
 
     //List<TourPackageResponseDTO> getAllTourPackages();
     Page<TourPackageResponseDTO> getAllTourPackagesPaginated(int page, int size);
+    Page<TourPackageResponseDTO> getAllTourPackagesPaginatedAndFiltered(
+            int page, int size, LocalDate startDate, LocalDate endDate, Double minPrice, Double maxPrice);
 
     Optional<TourPackageResponseDTO> getTourPackageById(Long id);
 

@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -22,4 +23,21 @@ public interface ITourPackageRepository extends JpaRepository<TourPackage, Long>
             "LEFT JOIN FETCH tp.categories " +
             "WHERE tp.packageId = :id")
     Optional<TourPackage> findByIdWithCategories(@Param("id") Long id);
+
+    @Query(value = "SELECT tp.packageId FROM TourPackage tp " +
+            "WHERE (:startDate IS NULL OR tp.end_date >= :startDate) " +
+            "AND (:endDate IS NULL OR tp.start_date <= :endDate) " +
+            "AND (:minPrice IS NULL OR tp.price >= :minPrice) " +
+            "AND (:maxPrice IS NULL OR tp.price <= :maxPrice)",
+            countQuery = "SELECT COUNT(tp.packageId) FROM TourPackage tp " +
+                    "WHERE (:startDate IS NULL OR tp.end_date >= :startDate) " +
+                    "AND (:endDate IS NULL OR tp.start_date <= :endDate) " +
+                    "AND (:minPrice IS NULL OR tp.price >= :minPrice) " +
+                    "AND (:maxPrice IS NULL OR tp.price <= :maxPrice)")
+    Page<Long> findFilteredIds(
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate,
+            @Param("minPrice") Double minPrice,
+            @Param("maxPrice") Double maxPrice,
+            Pageable pageable);
 }
