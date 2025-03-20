@@ -9,17 +9,19 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/tourPackages")
-@RequiredArgsConstructor(onConstructor_ = {@Autowired})
+@RequiredArgsConstructor
 @Tag(name = "Package Controller", description = "Endpoints para gestión de paquetes turísticos")
 public class TourPackageController {
 
@@ -33,6 +35,30 @@ public class TourPackageController {
             @RequestParam(defaultValue = "10") int size) {
 
         Page<TourPackageResponseDTO> packages = tourPackageService.getAllTourPackagesPaginated(page, size);
+
+        // Agregar información de favoritos si hay un usuario autenticado
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.getPrincipal() instanceof com.backend.globeonclick.entity.User) {
+            Long userId = ((com.backend.globeonclick.entity.User) auth.getPrincipal()).getUserId();
+            packages.getContent().forEach(packageDTO ->
+                    packageDTO.setIsFavorite(userService.isPackageFavorite(userId, packageDTO.getPackageId())));
+        }
+
+        return ResponseEntity.ok(packages);
+    }
+
+    @Operation(summary = "Obtener todos los paquetes (con paginación y filtros)")
+    @GetMapping("/filtered")
+    public ResponseEntity<Page<TourPackageResponseDTO>> getAllPackages(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+            @RequestParam(required = false) Double minPrice,
+            @RequestParam(required = false) Double maxPrice) {
+
+        Page<TourPackageResponseDTO> packages = tourPackageService.getAllTourPackagesPaginatedAndFiltered(
+                page, size, startDate, endDate, minPrice, maxPrice);
 
         // Agregar información de favoritos si hay un usuario autenticado
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -101,5 +127,11 @@ public class TourPackageController {
             @PathVariable Long mediaPackageId) {
         tourPackageService.removeMediaFromTourPackage(packageId, mediaPackageId);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/batch")
+    public ResponseEntity<List<TourPackageResponseDTO>> getPackagesByIds(@RequestParam("ids") List<Long> packageIds) {
+        List<TourPackageResponseDTO> packages = tourPackageService.findPackagesByIds(packageIds);
+        return ResponseEntity.ok(packages);
     }
 }

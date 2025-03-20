@@ -24,21 +24,13 @@ public class TourPackageMapper {
     public TourPackageResponseDTO toResponseDTO(TourPackage tourPackage) {
         if (tourPackage == null) return null;
 
-        // 1. Inicializar colecciones con tamaño adecuado
-        int mediaPackageLimit = Math.min(tourPackage.getMediaPackages().size(), 20);
-        List<MediaPackageResponseDTO> mediaPackageDTOs = new ArrayList<>(mediaPackageLimit);
+        // Procesamos solo las colecciones necesarias y con límites claros
+        List<TourPackageResponseDTO.CategoryBasicInfo> categoryInfos = new ArrayList<>(tourPackage.getCategories().size());
+        List<FeatureName> featureNames = new ArrayList<>(tourPackage.getFeatures().size());
+        List<MediaPackageResponseDTO> mediaPackageDTOs = new ArrayList<>(
+                Math.min(tourPackage.getMediaPackages().size(), 20));
 
-        // 2. Limitar cantidad de mediaPackages procesados
-        for (int i = 0; i < mediaPackageLimit; i++) {
-            MediaPackage mp = tourPackage.getMediaPackages().get(i);
-            mediaPackageDTOs.add(mediaPackageMapper.toResponseDTO(mp));
-        }
-
-        // 3. Usar tamaño adecuado para las categorías
-        List<TourPackageResponseDTO.CategoryBasicInfo> categoryInfos =
-                new ArrayList<>(tourPackage.getCategories().size());
-
-        // 4. Procesar categorías directamente sin stream
+        // Procesamos categorías
         for (Category category : tourPackage.getCategories()) {
             categoryInfos.add(TourPackageResponseDTO.CategoryBasicInfo.builder()
                     .categoryId(category.getCategoryId())
@@ -50,10 +42,16 @@ public class TourPackageMapper {
                     .build());
         }
 
-        // 5. Extraer solo los nombres de features sin stream
-        List<FeatureName> featureNames = new ArrayList<>(tourPackage.getFeatures().size());
+        // Procesamos features
         for (Feature feature : tourPackage.getFeatures()) {
-            featureNames.add(FeatureName.valueOf(feature.getName()));
+            if (feature.getName() != null) {
+                featureNames.add(FeatureName.valueOf(feature.getName()));
+            }
+        }
+
+        // Procesamos mediaPackages (ya limitados a 20 en la consulta)
+        for (MediaPackage mp : tourPackage.getMediaPackages()) {
+            mediaPackageDTOs.add(mediaPackageMapper.toResponseDTO(mp));
         }
 
         return TourPackageResponseDTO.builder()
@@ -64,20 +62,11 @@ public class TourPackageMapper {
                 .categories(categoryInfos)
                 .mediaPackages(mediaPackageDTOs)
                 .features(featureNames)
-                .start_date((tourPackage.getStart_date()))
-                .end_date((tourPackage.getEnd_date()))
+                .start_date(tourPackage.getStart_date())
+                .end_date(tourPackage.getEnd_date())
                 .price(tourPackage.getPrice())
                 .build();
     }
-
-    //Mapper para obtener todos los paquetes
-    /*public List<TourPackageResponseDTO> toResponseDTOList(List<TourPackage> tourPackages) {
-        List<TourPackageResponseDTO> result = new ArrayList<>(tourPackages.size());
-        for (TourPackage tourPackage : tourPackages) {
-            result.add(toResponseDTO(tourPackage));
-        }
-        return result;
-    }*/
 
     public TourPackage toEntity(TourPackageRequestDTO requestDTO) {
 
