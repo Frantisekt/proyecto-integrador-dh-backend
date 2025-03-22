@@ -15,6 +15,8 @@ import com.backend.globeonclick.services.interfaces.IMediaService;
 import com.backend.globeonclick.utils.mappers.CategoryMapper;
 import com.backend.globeonclick.utils.mappers.MediaMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,6 +36,7 @@ public class CategoryService implements ICategoryService {
     private final IMediaCategoryRepository mediaCategoryRepository;
 
     @Override
+    @CacheEvict(value = {"categories", "categoryById", "categoriesByPackage"}, allEntries = true)
     public CategoryResponseDTO createCategory(CategoryRequestDTO requestDTO) {
         Category category = categoryMapper.toEntity(requestDTO);
 
@@ -57,6 +60,8 @@ public class CategoryService implements ICategoryService {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    @Cacheable(value = "categories")
     public List<CategoryResponseDTO> getAllCategories() {
         List<Category> categories = categoryRepository.findAll();
         return categories.stream()
@@ -65,12 +70,15 @@ public class CategoryService implements ICategoryService {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    @Cacheable(value = "categoryById", key = "#id")
     public Optional<CategoryResponseDTO> getCategoryById(Long id) {
         return categoryRepository.findById(id)
                 .map(categoryMapper::toResponseDTO);
     }
 
     @Override
+    @CacheEvict(value = {"categories", "categoryById", "categoriesByPackage"}, allEntries = true)
     public CategoryResponseDTO updateCategory(Long id, CategoryRequestDTO requestDTO) {
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Category not found with id: " + id));
@@ -88,6 +96,7 @@ public class CategoryService implements ICategoryService {
     }
 
     @Override
+    @CacheEvict(value = {"categories", "categoryById", "categoriesByPackage"}, allEntries = true)
     public void deleteCategory(Long id) {
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Category not found with id: " + id));
@@ -113,6 +122,8 @@ public class CategoryService implements ICategoryService {
 
 
     @Override
+    @Transactional(readOnly = true)
+    @Cacheable(value = "categoriesByPackage", key = "#tourPackageId")
     public List<CategoryResponseDTO> getCategoriesByTourPackageId(Long tourPackageId) {
         List<Category> categories = categoryRepository.findByTourPackagesPackageId(tourPackageId);
         return categories.stream()
@@ -121,6 +132,7 @@ public class CategoryService implements ICategoryService {
     }
 
     @Override
+    @CacheEvict(value = {"categories", "categoryById", "categoriesByPackage"}, allEntries = true)
     public CategoryResponseDTO addMediaToCategory(Long categoryId, Long mediaCategoryId) {
         Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new RuntimeException("Category not found with id: " + categoryId));
@@ -136,6 +148,7 @@ public class CategoryService implements ICategoryService {
     }
 
     @Override
+    @CacheEvict(value = {"categories", "categoryById", "categoriesByPackage"}, allEntries = true)
     public void removeMediaFromCategory(Long categoryId, Long mediaCategoryId) {
         Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new RuntimeException("Category not found with id: " + categoryId));

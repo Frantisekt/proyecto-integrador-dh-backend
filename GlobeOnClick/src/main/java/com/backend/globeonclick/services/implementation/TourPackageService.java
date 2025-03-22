@@ -16,6 +16,8 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Query;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -42,6 +44,7 @@ public class TourPackageService implements ITourPackageService {
 
 
     @Override
+    @CacheEvict(value = {"tourPackages", "tourPackageById", "tourPackagesByPriceRange"}, allEntries = true)
     public TourPackageResponseDTO createTourPackage(TourPackageRequestDTO requestDTO) {
         TourPackage tourPackage = tourPackageMapper.toEntity(requestDTO);
 
@@ -65,6 +68,7 @@ public class TourPackageService implements ITourPackageService {
 
     @Override
     @Transactional(readOnly = true)
+    @Cacheable(value = "tourPackages", key = "#page + '-' + #size")
     public Page<TourPackageResponseDTO> getAllTourPackagesPaginated(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
 
@@ -158,6 +162,7 @@ public class TourPackageService implements ITourPackageService {
 
     @Override
     @Transactional(readOnly = true)
+    @Cacheable(value = "tourPackagesByPriceRange", key = "#page + '-' + #size + '-' + #startDate + '-' + #endDate + '-' + #minPrice + '-' + #maxPrice")
     public Page<TourPackageResponseDTO> getAllTourPackagesPaginatedAndFiltered(
             int page, int size, LocalDate startDate, LocalDate endDate, Double minPrice, Double maxPrice) {
 
@@ -252,6 +257,8 @@ public class TourPackageService implements ITourPackageService {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    @Cacheable(value = "tourPackageById", key = "#id")
     public Optional<TourPackageResponseDTO> getTourPackageById(Long id) {
         TourPackage tourPackage = tourPackageRepository.findByIdWithCategories(id)
                 .orElseThrow(() -> new ResourceNotFoundException("TourPackage not found with id: " + id));
@@ -277,6 +284,7 @@ public class TourPackageService implements ITourPackageService {
     }
 
     @Override
+    @CacheEvict(value = {"tourPackages", "tourPackageById", "tourPackagesByPriceRange"}, allEntries = true)
     public TourPackageResponseDTO updateTourPackage(Long id, TourPackageRequestDTO requestDTO) {
         return tourPackageRepository.findById(id)
                 .map(tourPackage -> {
@@ -302,6 +310,7 @@ public class TourPackageService implements ITourPackageService {
 
     @Override
     @Transactional
+    @CacheEvict(value = {"tourPackages", "tourPackageById", "tourPackagesByPriceRange"}, allEntries = true)
     public void deleteTourPackage(Long id) {
         try {
             TourPackage tourPackage = tourPackageRepository.findById(id)
@@ -335,6 +344,7 @@ public class TourPackageService implements ITourPackageService {
     }
 
     @Override
+    @CacheEvict(value = {"tourPackages", "tourPackageById", "tourPackagesByPriceRange"}, allEntries = true)
     public TourPackageResponseDTO addMediaToTourPackage(Long packageId, Long mediaPackageId) {
         TourPackage tourPackage = tourPackageRepository.findById(packageId)
                 .orElseThrow(() -> new RuntimeException("Package not found with id: " + packageId));
@@ -350,6 +360,7 @@ public class TourPackageService implements ITourPackageService {
     }
 
     @Override
+    @CacheEvict(value = {"tourPackages", "tourPackageById", "tourPackagesByPriceRange"}, allEntries = true)
     public void removeMediaFromTourPackage(Long packageId, Long mediaPackageId) {
         TourPackage tourPackage = tourPackageRepository.findById(packageId)
                 .orElseThrow(() -> new RuntimeException("Package not found with id: " + packageId));
@@ -364,6 +375,8 @@ public class TourPackageService implements ITourPackageService {
         tourPackageRepository.save(tourPackage);
     }
 
+    @Transactional(readOnly = true)
+    @Cacheable(value = "tourPackagesByPriceRange", key = "#minPrice + '-' + #maxPrice + '-' + #pageable.pageNumber + '-' + #pageable.pageSize")
     public Page<TourPackageResponseDTO> findPackagesInPriceRange(Double minPrice, Double maxPrice, Pageable pageable) {
         List<TourPackage> packages = priceRangeService.findPackagesInPriceRange(minPrice, maxPrice);
         
@@ -379,6 +392,7 @@ public class TourPackageService implements ITourPackageService {
 
     @Override
     @Transactional(readOnly = true)
+    @Cacheable(value = "tourPackages", key = "'byIds-' + #packageIds")
     public List<TourPackageResponseDTO> findPackagesByIds(List<Long> packageIds) {
         if (packageIds == null || packageIds.isEmpty()) {
             return Collections.emptyList();

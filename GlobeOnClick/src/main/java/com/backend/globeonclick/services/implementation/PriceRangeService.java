@@ -7,6 +7,8 @@ import com.backend.globeonclick.repository.ITourPackageRepository;
 import com.backend.globeonclick.services.interfaces.IPriceRangeService;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -39,6 +41,7 @@ public class PriceRangeService implements IPriceRangeService {
     }
 
     @Transactional
+    @CacheEvict(value = {"priceRanges", "priceRangeSearch"}, allEntries = true)
     protected void initializePriceRanges() {
         if (priceRangeRepository.count() == 0) {
             List<PriceRange> ranges = Arrays.asList(
@@ -55,6 +58,7 @@ public class PriceRangeService implements IPriceRangeService {
     }
 
     @Transactional
+    @CacheEvict(value = {"priceRanges", "priceRangeSearch"}, allEntries = true)
     public void initializeExistingPackages() {
         List<TourPackage> allPackages = tourPackageRepository.findAll();
         List<PriceRange> allRanges = priceRangeRepository.findAll();
@@ -80,6 +84,7 @@ public class PriceRangeService implements IPriceRangeService {
 
     @Override
     @Transactional
+    @CacheEvict(value = {"priceRanges", "priceRangeSearch"}, allEntries = true)
     public void assignPackageToPriceRange(TourPackage tourPackage) {
         if (tourPackage.getPrice() == null) return;
 
@@ -104,6 +109,7 @@ public class PriceRangeService implements IPriceRangeService {
 
     @Override
     @Transactional(readOnly = true)
+    @Cacheable(value = "priceRangeSearch", key = "#minPrice + '-' + #maxPrice")
     public List<TourPackage> findPackagesInPriceRange(Double minPrice, Double maxPrice) {
         // Encontrar todos los rangos que se superponen con el rango solicitado
         List<PriceRange> relevantRanges = priceRangeRepository.findRangesInRange(minPrice, maxPrice);
@@ -123,12 +129,14 @@ public class PriceRangeService implements IPriceRangeService {
 
     @Override
     @Transactional(readOnly = true)
+    @Cacheable(value = "priceRanges")
     public List<PriceRange> getAllRanges() {
         return priceRangeRepository.findAllOrderByMinPrice();
     }
 
     @Override
     @Transactional
+    @CacheEvict(value = {"priceRanges", "priceRangeSearch"}, allEntries = true)
     public void reinitializeAllRanges() {
         try {
             // Primero eliminar todas las relaciones de la tabla price_range_packages
@@ -155,12 +163,14 @@ public class PriceRangeService implements IPriceRangeService {
     }
 
     @Transactional(readOnly = true)
+    @Cacheable(value = "priceRanges")
     public List<TourPackage> getAllPackagesWithPrices() {
         return tourPackageRepository.findAll();
     }
 
     @Override
     @Transactional
+    @CacheEvict(value = {"priceRanges", "priceRangeSearch"}, allEntries = true)
     public void updatePackagePriceRange(TourPackage tourPackage) {
         assignPackageToPriceRange(tourPackage);
     }
