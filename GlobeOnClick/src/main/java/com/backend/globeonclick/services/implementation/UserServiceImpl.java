@@ -16,6 +16,8 @@ import com.backend.globeonclick.utils.mappers.TourPackageMapper;
 import com.backend.globeonclick.utils.mappers.UserMapper;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -40,6 +42,7 @@ public class UserServiceImpl implements IUserService {
 
     @Override
     @Transactional
+    @CacheEvict(value = {"users", "userById", "userByDni"}, allEntries = true)
     public UserResponseDTO createUser(UserRequestDTO userDTO) {
         if (existsByEmail(userDTO.getEmail())) {
             throw new IllegalArgumentException("El email ya está registrado");
@@ -62,6 +65,7 @@ public class UserServiceImpl implements IUserService {
 
     @Override
     @Transactional(readOnly = true)
+    @Cacheable(value = "userById", key = "#id")
     public UserResponseDTO getUserById(Long id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado con ID: " + id));
@@ -70,6 +74,7 @@ public class UserServiceImpl implements IUserService {
 
     @Override
     @Transactional(readOnly = true)
+    @Cacheable(value = "users")
     public List<UserResponseDTO> getAllUsers() {
         List<User> users = userRepository.findAll();
         return userMapper.toResponseDTOList(users);
@@ -77,6 +82,7 @@ public class UserServiceImpl implements IUserService {
 
     @Override
     @Transactional
+    @CacheEvict(value = {"users", "userById", "userByDni"}, allEntries = true)
     public UserResponseDTO updateUser(Long id, UserRequestDTO userDTO) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado con ID: " + id));
@@ -108,6 +114,7 @@ public class UserServiceImpl implements IUserService {
 
     @Override
     @Transactional
+    @CacheEvict(value = {"users", "userById", "userByDni"}, allEntries = true)
     public void deleteUser(Long id) {
         if (!userRepository.existsById(id)) {
             throw new ResourceNotFoundException("Usuario no encontrado con ID: " + id);
@@ -127,6 +134,7 @@ public class UserServiceImpl implements IUserService {
 
     @Override
     @Transactional(readOnly = true)
+    @Cacheable(value = "userByDni", key = "#dni")
     public UserResponseDTO getUserByDni(String dni) {
         User user = userRepository.findByDni(dni)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado con DNI: " + dni));
@@ -135,6 +143,7 @@ public class UserServiceImpl implements IUserService {
 
     @Override
     @Transactional
+    @CacheEvict(value = {"users", "userById", "userByDni", "userFavorites"}, allEntries = true)
     public void addFavoritePackage(Long userId, Long packageId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado con ID: " + userId));
@@ -148,6 +157,7 @@ public class UserServiceImpl implements IUserService {
 
     @Override
     @Transactional
+    @CacheEvict(value = {"users", "userById", "userByDni", "userFavorites"}, allEntries = true)
     public void removeFavoritePackage(Long userId, Long packageId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado con ID: " + userId));
@@ -161,6 +171,7 @@ public class UserServiceImpl implements IUserService {
 
     @Override
     @Transactional(readOnly = true)
+    @Cacheable(value = "userFavorites", key = "#userId")
     public FavoritePackagesResponseDTO getUserFavoritePackages(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado con ID: " + userId));
@@ -183,6 +194,7 @@ public class UserServiceImpl implements IUserService {
 
     @Override
     @Transactional(readOnly = true)
+    @Cacheable(value = "userFavoritesPaginated", key = "#userId + '_' + #page + '_' + #size")
     public Page<TourPackageResponseDTO> getUserFavoritePackagesPaginated(Long userId, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
 
@@ -206,6 +218,7 @@ public class UserServiceImpl implements IUserService {
 
     @Override
     @Transactional(readOnly = true)
+    @Cacheable(value = "isPackageFavorite", key = "#userId + '_' + #packageId")
     public boolean isPackageFavorite(Long userId, Long packageId) {
         return userRepository.existsByUserIdAndFavoritePackagesPackageId(userId, packageId);
     }

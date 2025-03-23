@@ -9,6 +9,8 @@ import com.backend.globeonclick.repository.ITourPackageRepository;
 import com.backend.globeonclick.utils.mappers.FeatureMapper;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,6 +26,7 @@ public class FeatureService {
 
     // Nuevo método para crear feature con nombre y displayName
     @Transactional
+    @CacheEvict(value = {"features", "packageFeatures"}, allEntries = true)
     public FeatureResponseDTO createFeature(String name, String displayName) {
         if (featureRepository.existsByName(name)) {
             throw new IllegalArgumentException("La característica ya existe: " + name);
@@ -38,11 +41,13 @@ public class FeatureService {
     }
 
     @Transactional
+    @CacheEvict(value = {"features", "packageFeatures"}, allEntries = true)
     public FeatureResponseDTO createFeature(String featureName) {
         return createFeature(featureName, featureName);
     }
 
     @Transactional(readOnly = true)
+    @Cacheable(value = "features")
     public List<FeatureResponseDTO> getAllFeatures() {
         return featureRepository.findAll().stream()
                 .map(featureMapper::toDTO)
@@ -50,6 +55,7 @@ public class FeatureService {
     }
 
     @Transactional
+    @CacheEvict(value = {"features", "packageFeatures"}, allEntries = true)
     public void addFeatureToPackage(Long packageId, String featureName) {
         TourPackage tourPackage = tourPackageRepository.findById(packageId)
                 .orElseThrow(() -> new EntityNotFoundException("Paquete no encontrado con ID: " + packageId));
@@ -66,6 +72,7 @@ public class FeatureService {
     }
 
     @Transactional
+    @CacheEvict(value = {"features", "packageFeatures"}, allEntries = true)
     public void removeFeatureFromPackage(Long packageId, String featureName) {
         TourPackage tourPackage = tourPackageRepository.findById(packageId)
                 .orElseThrow(() -> new EntityNotFoundException("Paquete no encontrado con ID: " + packageId));
@@ -78,6 +85,7 @@ public class FeatureService {
     }
 
     @Transactional(readOnly = true)
+    @Cacheable(value = "packageFeatures", key = "#packageId")
     public List<FeatureResponseDTO> getFeaturesForPackage(Long packageId) {
         TourPackage tourPackage = tourPackageRepository.findById(packageId)
                 .orElseThrow(() -> new EntityNotFoundException("Paquete no encontrado con ID: " + packageId));

@@ -17,6 +17,7 @@ import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Query;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -284,7 +285,8 @@ public class TourPackageService implements ITourPackageService {
     }
 
     @Override
-    @CacheEvict(value = {"tourPackages", "tourPackageById", "tourPackagesByPriceRange"}, allEntries = true)
+    @CachePut(value = "tourPackageById", key = "#id")
+    @CacheEvict(value = {"tourPackages", "tourPackagesByPriceRange"}, allEntries = true)
     public TourPackageResponseDTO updateTourPackage(Long id, TourPackageRequestDTO requestDTO) {
         return tourPackageRepository.findById(id)
                 .map(tourPackage -> {
