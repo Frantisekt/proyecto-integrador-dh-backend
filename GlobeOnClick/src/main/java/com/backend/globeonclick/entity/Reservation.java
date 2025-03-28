@@ -2,6 +2,9 @@ package com.backend.globeonclick.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import java.time.LocalDateTime;
 
 @Data
 @Builder
@@ -30,7 +33,18 @@ public class Reservation {
     @JoinColumn(name = "date_id")
     private TourDate tourDate;
 
+    private Integer numberOfAdults;
+    private Integer numberOfChildren;
+    private Integer numberOfInfants;
+    private Double totalAmount; // Monto total de la reserva
     private String confirmationStatus;
     //private String paymentStatus;
     private String rating;
+
+    // Campos de auditoría
+    @CreatedDate
+    private LocalDateTime createdAt;
+    
+    @LastModifiedDate
+    private LocalDateTime updatedAt;
 } 

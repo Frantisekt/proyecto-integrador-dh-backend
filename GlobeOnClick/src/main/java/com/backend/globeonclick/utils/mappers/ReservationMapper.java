@@ -16,27 +16,35 @@ public class ReservationMapper {
                 .userName(reservation.getUser().getName())
                 .packageId(reservation.getTourPackage().getPackageId())
                 .packageTitle(reservation.getTourPackage().getTitle())
-                .categoryId(reservation.getCategory().getCategoryId())
-                .categoryTitle(reservation.getCategory().getTitle())
-                .dateId(reservation.getTourDate().getDateId())
-                .dateTitle(reservation.getTourDate().getTitle())
+                .numberOfAdults(reservation.getNumberOfAdults())
+                .numberOfChildren(reservation.getNumberOfChildren())
+                .numberOfInfants(reservation.getNumberOfInfants())
+                .totalAmount(reservation.getTotalAmount())
                 .confirmationStatus(reservation.getConfirmationStatus())
-                //.paymentStatus(reservation.getPaymentStatus())
                 .rating(reservation.getRating())
+                .createdAt(reservation.getCreatedAt())
+                .updatedAt(reservation.getUpdatedAt())
                 .build();
     }
 
     public Reservation toEntity(ReservationRequestDTO requestDTO) {
         return Reservation.builder()
-                .confirmationStatus(requestDTO.getConfirmationStatus())
-                //.paymentStatus(requestDTO.getPaymentStatus())
-                .rating(requestDTO.getRating())
+                .numberOfAdults(requestDTO.getNumberOfAdults())
+                .numberOfChildren(requestDTO.getNumberOfChildren())
+                .numberOfInfants(requestDTO.getNumberOfInfants())
                 .build();
     }
 
     public void updateEntity(Reservation reservation, ReservationRequestDTO requestDTO) {
-        reservation.setConfirmationStatus(requestDTO.getConfirmationStatus());
-        //reservation.setPaymentStatus(requestDTO.getPaymentStatus());
-        reservation.setRating(requestDTO.getRating());
+        reservation.setNumberOfAdults(requestDTO.getNumberOfAdults());
+        reservation.setNumberOfChildren(requestDTO.getNumberOfChildren());
+        reservation.setNumberOfInfants(requestDTO.getNumberOfInfants());
+        // El totalAmount se calcula en el servicio
+        if (requestDTO.getConfirmationStatus() != null) {
+            reservation.setConfirmationStatus(requestDTO.getConfirmationStatus());
+        }
+        if (requestDTO.getRating() != null) {
+            reservation.setRating(requestDTO.getRating());
+        }
     }
 }
